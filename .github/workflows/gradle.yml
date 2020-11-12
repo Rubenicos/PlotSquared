@@ -40,5 +40,5 @@ jobs:
     - name: Upload Plugin
       uses: actions/upload-artifact@master
       with:
-        name: PlotSquared Jar
-        path: build/libs/*.jar
+        name: Generated Jars
+        path: target/*.jar
