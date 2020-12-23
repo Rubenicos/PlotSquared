@@ -28,7 +28,7 @@ dependencies {
     compile(group: "com.sk89q.worldedit", name: "worldedit-bukkit", version: "7.2.0") {
         exclude(module: "bukkit")
     }
-    compile("io.papermc:paperlib:1.0.4")
+    compile("io.papermc:paperlib:1.0.5")
     implementation("net.kyori:text-adapter-bukkit:3.0.3")
     compile("com.github.MilkBowl:VaultAPI:1.7") {
         exclude(module: "bukkit")
@@ -94,17 +94,19 @@ task copyFiles {
 shadowJar {
     dependencies {
         include(dependency(":PlotSquared-Core"))
-        include(dependency("io.papermc:paperlib:1.0.4"))
+        include(dependency("io.papermc:paperlib:1.0.5"))
         include(dependency("net.kyori:text-adapter-bukkit:3.0.3"))
         include(dependency("org.bstats:bstats-bukkit:1.7"))
         include(dependency("org.khelekore:prtree:1.7.0-SNAPSHOT"))
         include(dependency("com.sk89q:squirrelid:1.0.0-SNAPSHOT"))
+        include(dependency("com.intellectualsites.paster:Paster:1.0.1-SNAPSHOT"))
     }
     relocate('net.kyori.text', 'com.plotsquared.formatting.text')
     relocate("io.papermc.lib", "com.plotsquared.bukkit.paperlib")
     relocate("org.bstats", "com.plotsquared.metrics")
     relocate('com.sk89q.squirrelid', 'com.plotsquared.squirrelid')
     relocate('org.khelekore.prtree', 'com.plotsquared.prtree')
+    relocate('com.intellectualsites.paster', 'com.plotsquared.core.paster')
     archiveFileName = "${project.name}-${parent.version}.jar"
     destinationDirectory = file "../target"
 }
