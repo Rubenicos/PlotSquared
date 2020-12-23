@@ -36,5 +36,5 @@ jobs:
     - name: Upload Plugin
       uses: actions/upload-artifact@master
       with:
-        name: Generated Jars
+        name: PlotSquared-JDK${{ matrix.java }}
         path: target/*.jar
