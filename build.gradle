@@ -30,7 +30,7 @@ ext {
     git = Grgit.open(dir: new File(rootDir.toString() + "/.git"))
 }
 
-def ver = "5.13.10"
+def ver = "5.13.11"
 def versuffix = ""
 ext {
     if (project.hasProperty("versionsuffix")) {
@@ -53,7 +53,7 @@ allprojects {
     license {
         header rootProject.file('HEADER')
         mapping 'java', 'SLASHSTAR_STYLE'
-        ext.year = 2020
+        ext.year = 2021
         includes(["**/*.java","**/*.js"])
     }
     nexus {

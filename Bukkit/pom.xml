@@ -21,7 +21,7 @@
     <dependency>
       <groupId>com.plotsquared</groupId>
       <artifactId>PlotSquared-Core</artifactId>
-      <version>5.13.10</version>
+      <version>5.13.11</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
@@ -181,6 +181,12 @@
           <groupId>io.papermc</groupId>
         </exclusion>
       </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>de.notmyfault</groupId>
+      <artifactId>serverlib</artifactId>
+      <version>1.0.1</version>
+      <scope>runtime</scope>
     </dependency>
     <dependency>
       <groupId>junit</groupId>
