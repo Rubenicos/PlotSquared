@@ -21,7 +21,7 @@
  *     GNU General Public License for more details.
  *
  *     You should have received a copy of the GNU General Public License
- *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 package com.plotsquared.core.events;
 
@@ -35,7 +35,17 @@ import com.plotsquared.core.plot.Plot;
 public class PlayerTeleportToPlotEvent extends PlotPlayerEvent implements CancellablePlotEvent {
 
     private final Location from;
+    private final TeleportCause cause;
     private Result eventResult;
+
+    /**
+     * @deprecated use {@link PlayerTeleportToPlotEvent#PlayerTeleportToPlotEvent(PlotPlayer, Location, Plot, TeleportCause)}.
+     * You should not be creating events in the first place.
+     */
+    @Deprecated(forRemoval = true)
+    public PlayerTeleportToPlotEvent(PlotPlayer<?> player, Location from, Plot plot) {
+        this(player, from, plot, TeleportCause.UNKNOWN);
+    }
 
     /**
      * PlayerTeleportToPlotEvent: Called when a player teleports to a plot
@@ -43,10 +53,21 @@ public class PlayerTeleportToPlotEvent extends PlotPlayerEvent implements Cancel
      * @param player That was teleported
      * @param from   Start location
      * @param plot   Plot to which the player was teleported
+     * @param cause  Why the teleport is being completed
      */
-    public PlayerTeleportToPlotEvent(PlotPlayer player, Location from, Plot plot) {
+    public PlayerTeleportToPlotEvent(PlotPlayer<?> player, Location from, Plot plot, TeleportCause cause) {
         super(player, plot);
         this.from = from;
+        this.cause = cause;
+    }
+
+    /**
+     * Get the teleport cause
+     *
+     * @return TeleportCause
+     */
+    public TeleportCause getCause() {
+        return cause;
     }
 
     /**
@@ -58,11 +79,14 @@ public class PlayerTeleportToPlotEvent extends PlotPlayerEvent implements Cancel
         return this.from;
     }
 
-    @Override public Result getEventResult() {
+    @Override
+    public Result getEventResult() {
         return eventResult;
     }
 
-    @Override public void setEventResult(Result e) {
+    @Override
+    public void setEventResult(Result e) {
         this.eventResult = e;
     }
+
 }

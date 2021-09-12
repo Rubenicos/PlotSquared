@@ -21,19 +21,20 @@
  *     GNU General Public License for more details.
  *
  *     You should have received a copy of the GNU General Public License
- *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 package com.plotsquared.bukkit.util;
 
 import com.plotsquared.bukkit.entity.EntityWrapper;
 import com.plotsquared.bukkit.entity.ReplicatingEntityWrapper;
-import com.plotsquared.core.PlotSquared;
 import com.plotsquared.core.location.Location;
 import com.plotsquared.core.location.PlotLoc;
 import com.sk89q.worldedit.bukkit.BukkitWorld;
 import com.sk89q.worldedit.math.BlockVector3;
 import com.sk89q.worldedit.regions.CuboidRegion;
 import com.sk89q.worldedit.world.block.BaseBlock;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.bukkit.Chunk;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
@@ -45,6 +46,8 @@ import java.util.Map;
 import java.util.Set;
 
 public class ContentMap {
+
+    private static final Logger LOGGER = LogManager.getLogger("PlotSquared/" + ContentMap.class.getSimpleName());
 
     final Set<EntityWrapper> entities;
     final Map<PlotLoc, BaseBlock[]> allBlocks;
@@ -74,7 +77,7 @@ public class ContentMap {
 
     void saveEntitiesOut(Chunk chunk, CuboidRegion region) {
         for (Entity entity : chunk.getEntities()) {
-            Location location = BukkitUtil.getLocation(entity);
+            Location location = BukkitUtil.adapt(entity.getLocation());
             int x = location.getX();
             int z = location.getZ();
             if (BukkitChunkManager.isIn(region, x, z)) {
@@ -93,10 +96,12 @@ public class ContentMap {
         saveEntitiesIn(chunk, region, 0, 0, false);
     }
 
-    void saveEntitiesIn(Chunk chunk, CuboidRegion region, int offsetX, int offsetZ,
-        boolean delete) {
+    void saveEntitiesIn(
+            Chunk chunk, CuboidRegion region, int offsetX, int offsetZ,
+            boolean delete
+    ) {
         for (Entity entity : chunk.getEntities()) {
-            Location location = BukkitUtil.getLocation(entity);
+            Location location = BukkitUtil.adapt(entity.getLocation());
             int x = location.getX();
             int z = location.getZ();
             if (!BukkitChunkManager.isIn(region, x, z)) {
@@ -123,8 +128,7 @@ public class ContentMap {
             try {
                 entity.spawn(world, xOffset, zOffset);
             } catch (Exception e) {
-                PlotSquared.debug("Failed to restore entity (e): " + e.toString());
-                e.printStackTrace();
+                LOGGER.error("Failed to restore entity", e);
             }
         }
         this.entities.clear();
@@ -141,4 +145,5 @@ public class ContentMap {
         PlotLoc loc = new PlotLoc(x + offsetX, z + offsetZ);
         this.allBlocks.put(loc, ids);
     }
+
 }
