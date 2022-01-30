@@ -8,7 +8,7 @@
  *                                    | |
  *                                    |_|
  *            PlotSquared plot management system for Minecraft
- *                  Copyright (C) 2021 IntellectualSites
+ *               Copyright (C) 2014 - 2022 IntellectualSites
  *
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -166,7 +166,7 @@ public class BlockEventListener implements Listener {
         }
         if (Settings.Redstone.DISABLE_OFFLINE) {
             boolean disable = false;
-            if (!plot.getOwner().equals(DBFunc.SERVER)) {
+            if (!DBFunc.SERVER.equals(plot.getOwner())) {
                 if (plot.isMerged()) {
                     disable = true;
                     for (UUID owner : plot.getOwners()) {
@@ -318,8 +318,7 @@ public class BlockEventListener implements Listener {
             } else if (Settings.Done.RESTRICT_BUILDING && DoneFlag.isDone(plot)) {
                 if (!Permissions.hasPermission(pp, Permission.PERMISSION_ADMIN_BUILD_OTHER)) {
                     pp.sendMessage(
-                            TranslatableCaption.of("permission.no_permission_event"),
-                            Template.of("node", String.valueOf(Permission.PERMISSION_ADMIN_BUILD_OTHER))
+                            TranslatableCaption.of("done.building_restricted")
                     );
                     event.setCancelled(true);
                     return;
@@ -401,8 +400,7 @@ public class BlockEventListener implements Listener {
             } else if (Settings.Done.RESTRICT_BUILDING && DoneFlag.isDone(plot)) {
                 if (!Permissions.hasPermission(plotPlayer, Permission.PERMISSION_ADMIN_BUILD_OTHER)) {
                     plotPlayer.sendMessage(
-                            TranslatableCaption.of("permission.no_permission_event"),
-                            Template.of("node", String.valueOf(Permission.PERMISSION_ADMIN_DESTROY_OTHER))
+                            TranslatableCaption.of("done.building_restricted")
                     );
                     event.setCancelled(true);
                     return;

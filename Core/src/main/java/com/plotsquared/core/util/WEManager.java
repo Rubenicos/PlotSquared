@@ -8,7 +8,7 @@
  *                                    | |
  *                                    |_|
  *            PlotSquared plot management system for Minecraft
- *                  Copyright (C) 2021 IntellectualSites
+ *               Copyright (C) 2014 - 2022 IntellectualSites
  *
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -109,7 +109,7 @@ public class WEManager {
                 plot = metaDataAccess.get().orElse(null);
             }
             if (plot != null && (!Settings.Done.RESTRICT_BUILDING || !DoneFlag.isDone(plot)) && (
-                    (allowMember && plot.isAdded(uuid)) || (!allowMember && (plot.isOwner(uuid)) || plot
+                    (allowMember && plot.isAdded(uuid)) || (!allowMember && plot.isOwner(uuid) || plot
                             .getTrusted().contains(uuid))) && !plot.getFlag(NoWorldeditFlag.class)) {
                 for (CuboidRegion region : plot.getRegions()) {
                     BlockVector3 pos1 = region.getMinimumPoint().withY(area.getMinBuildHeight());

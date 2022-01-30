@@ -8,7 +8,7 @@
  *                                    | |
  *                                    |_|
  *            PlotSquared plot management system for Minecraft
- *                  Copyright (C) 2021 IntellectualSites
+ *               Copyright (C) 2014 - 2022 IntellectualSites
  *
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -56,7 +56,7 @@ public final class PlotLoc {
     public static @Nullable PlotLoc fromString(final String input) {
         if (input == null || "side".equalsIgnoreCase(input)) {
             return null;
-        } else if (StringMan.isEqualIgnoreCaseToAny(input, "center", "middle")) {
+        } else if (StringMan.isEqualIgnoreCaseToAny(input, "center", "middle", "centre")) {
             return new PlotLoc(Integer.MAX_VALUE, Integer.MAX_VALUE);
         } else {
             try {

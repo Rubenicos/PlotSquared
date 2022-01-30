@@ -8,7 +8,7 @@
  *                                    | |
  *                                    |_|
  *            PlotSquared plot management system for Minecraft
- *                  Copyright (C) 2021 IntellectualSites
+ *               Copyright (C) 2014 - 2022 IntellectualSites
  *
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -29,6 +29,7 @@ import com.google.inject.Inject;
 import com.plotsquared.core.PlotSquared;
 import com.plotsquared.core.configuration.ConfigurationSection;
 import com.plotsquared.core.configuration.ConfigurationUtil;
+import com.plotsquared.core.configuration.Settings;
 import com.plotsquared.core.configuration.caption.CaptionHolder;
 import com.plotsquared.core.configuration.caption.Templates;
 import com.plotsquared.core.configuration.caption.TranslatableCaption;
@@ -222,7 +223,7 @@ public class Area extends SubCommand {
                 hybridPlotWorld.setAllowSigns(false);
                 final File parentFile = FileUtils.getFile(
                         PlotSquared.platform().getDirectory(),
-                        "schematics" + File.separator + "GEN_ROAD_SCHEMATIC" + File.separator + hybridPlotWorld.getWorldName() + File.separator
+                        Settings.Paths.SCHEMATICS + File.separator + "GEN_ROAD_SCHEMATIC" + File.separator + hybridPlotWorld.getWorldName() + File.separator
                                 + hybridPlotWorld.getId()
                 );
                 if (!parentFile.exists() && !parentFile.mkdirs()) {
@@ -856,11 +857,11 @@ public class Area extends SubCommand {
                     ) {
                     }).collect(Collectors.toCollection(LinkedList::new));
             if (Permissions.hasPermission(player, Permission.PERMISSION_AREA) && args[0].length() > 0) {
-                commands.addAll(TabCompletions.completePlayers(args[0], Collections.emptyList()));
+                commands.addAll(TabCompletions.completePlayers(player, args[0], Collections.emptyList()));
             }
             return commands;
         }
-        return TabCompletions.completePlayers(String.join(",", args).trim(), Collections.emptyList());
+        return TabCompletions.completePlayers(player, String.join(",", args).trim(), Collections.emptyList());
     }
 
 }

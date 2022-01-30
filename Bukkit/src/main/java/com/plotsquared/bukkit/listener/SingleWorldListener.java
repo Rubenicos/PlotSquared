@@ -8,7 +8,7 @@
  *                                    | |
  *                                    |_|
  *            PlotSquared plot management system for Minecraft
- *                  Copyright (C) 2021 IntellectualSites
+ *               Copyright (C) 2014 - 2022 IntellectualSites
  *
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -27,6 +27,7 @@ package com.plotsquared.bukkit.listener;
 
 import com.plotsquared.core.PlotSquared;
 import com.plotsquared.core.plot.world.PlotAreaManager;
+import com.plotsquared.core.plot.world.SinglePlotArea;
 import com.plotsquared.core.plot.world.SinglePlotAreaManager;
 import com.plotsquared.core.util.ReflectionUtils;
 import org.bukkit.Chunk;
@@ -42,7 +43,6 @@ import java.lang.reflect.Method;
 
 import static com.plotsquared.core.util.ReflectionUtils.getRefClass;
 
-@SuppressWarnings("unused")
 public class SingleWorldListener implements Listener {
 
     private final Method methodGetHandleChunk;
@@ -86,7 +86,7 @@ public class SingleWorldListener implements Listener {
         if (!(man instanceof SinglePlotAreaManager)) {
             return;
         }
-        if (!isPlotId(name)) {
+        if (!SinglePlotArea.isSinglePlotWorld(name)) {
             return;
         }
 
@@ -101,33 +101,6 @@ public class SingleWorldListener implements Listener {
     @EventHandler(priority = EventPriority.LOWEST)
     public void onChunkLoad(ChunkLoadEvent event) {
         handle(event);
-    }
-
-    private boolean isPlotId(String worldName) {
-        int len = worldName.length();
-        int separator = 0;
-        for (int i = 0; i < len; i++) {
-            switch (worldName.charAt(i)) {
-                case '_':
-                    separator++;
-                    break;
-                case '-':
-                case '0':
-                case '1':
-                case '2':
-                case '3':
-                case '4':
-                case '5':
-                case '6':
-                case '7':
-                case '8':
-                case '9':
-                    break;
-                default:
-                    return false;
-            }
-        }
-        return separator == 1;
     }
 
 }

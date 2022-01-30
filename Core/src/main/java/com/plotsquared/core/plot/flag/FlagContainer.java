@@ -8,7 +8,7 @@
  *                                    | |
  *                                    |_|
  *            PlotSquared plot management system for Minecraft
- *                  Copyright (C) 2021 IntellectualSites
+ *               Copyright (C) 2014 - 2022 IntellectualSites
  *
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -28,11 +28,11 @@ package com.plotsquared.core.plot.flag;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import com.plotsquared.core.configuration.caption.CaptionUtility;
+import com.plotsquared.core.util.AnnotationHelper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
-import org.jetbrains.annotations.ApiStatus;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -96,7 +96,7 @@ public class FlagContainer {
     }
 
     /**
-     * Cast a plot flag with wildcard parameters into a parametrisized
+     * Cast a plot flag with wildcard parameters into a parametrized
      * PlotFlag. This is an unsafe operation, and should only be performed
      * if the generic parameters are known beforehand.
      *
@@ -105,7 +105,7 @@ public class FlagContainer {
      * @param <T>  Flag type
      * @return Casted flag
      */
-    @SuppressWarnings("ALL")
+    @SuppressWarnings("unchecked")
     public static <V, T extends PlotFlag<V, ?>> T castUnsafe(
             final PlotFlag<?, ?> flag
     ) {
@@ -142,10 +142,13 @@ public class FlagContainer {
     /**
      * Add a flag to the container
      *
+     * <p>
+     * Use {@link #addAll(Collection)} to add multiple flags.
+     * </p>
+     *
      * @param flag Flag to add
      * @param <T>  flag type
      * @param <V>  flag value type
-     * @see #addAll(Collection) to add multiple flags
      */
     public <V, T extends PlotFlag<V, ?>> void addFlag(final T flag) {
         try {
@@ -181,6 +184,7 @@ public class FlagContainer {
      * @param <V>  flag value type
      * @return value of flag removed
      */
+    @SuppressWarnings("unchecked")
     public <V, T extends PlotFlag<V, ?>> V removeFlag(final T flag) {
         final Object value = this.flagMap.remove(flag.getClass());
         if (this.plotFlagUpdateHandler != null) {
@@ -198,8 +202,11 @@ public class FlagContainer {
     /**
      * Add all flags to the container
      *
+     * <p>
+     * Use {@link #addFlag(PlotFlag)} to add a single flag.
+     * </p>
+     *
      * @param flags Flags to add
-     * @see #addFlag(PlotFlag) to add a single flagg
      */
     public void addAll(final Collection<PlotFlag<?, ?>> flags) {
         for (final PlotFlag<?, ?> flag : flags) {
@@ -304,8 +311,11 @@ public class FlagContainer {
      * Updates are: a flag being removed, a flag being added or a flag
      * being updated.
      *
+     * <p>
+     * Use {@link PlotFlagUpdateType} to see the update types available.
+     * </p>
+     *
      * @param plotFlagUpdateHandler The update handler which will react to changes.
-     * @see PlotFlagUpdateType Plot flag update types
      */
     public void subscribe(final @NonNull PlotFlagUpdateHandler plotFlagUpdateHandler) {
         this.updateSubscribers.add(plotFlagUpdateHandler);
@@ -348,8 +358,9 @@ public class FlagContainer {
      * This is to prevent memory leaks. This method is not part of the API.
      *
      * @return a new Runnable that cleans up once the FlagContainer isn't needed anymore.
+     * @since 6.0.10
      */
-    @ApiStatus.Internal
+    @AnnotationHelper.ApiDescription(info = "This method should not be considered as public or API.")
     public Runnable createCleanupHook() {
         return () -> GlobalFlagContainer.getInstance().unsubscribe(unknownsRef);
     }

@@ -8,7 +8,7 @@
  *                                    | |
  *                                    |_|
  *            PlotSquared plot management system for Minecraft
- *                  Copyright (C) 2021 IntellectualSites
+ *               Copyright (C) 2014 - 2022 IntellectualSites
  *
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -559,13 +559,7 @@ public class Cluster extends SubCommand {
                                                 Template.of("cluster", cluster.getName())
                                         );
                                     }
-                                    for (final Plot plot : PlotQuery.newQuery().inWorld(player2.getLocation()
-                                            .getWorldName()).ownedBy(uuid)) {
-                                        PlotCluster current = plot.getCluster();
-                                        if (current != null && current.equals(cluster)) {
-                                            plot.unclaim();
-                                        }
-                                    }
+                                    removePlayerPlots(cluster, uuid, player2.getLocation().getWorldName());
                                     player.sendMessage(TranslatableCaption.of("cluster.cluster_kicked_user"));
                                 }
                             }
@@ -628,13 +622,7 @@ public class Cluster extends SubCommand {
                         TranslatableCaption.of("cluster.cluster_removed"),
                         Template.of("cluster", cluster.getName())
                 );
-                for (final Plot plot : PlotQuery.newQuery().inWorld(player.getLocation().getWorldName())
-                        .ownedBy(uuid)) {
-                    PlotCluster current = plot.getCluster();
-                    if (current != null && current.equals(cluster)) {
-                        plot.unclaim();
-                    }
-                }
+                removePlayerPlots(cluster, uuid, player.getLocation().getWorldName());
                 return true;
             }
             case "members": {
@@ -866,6 +854,24 @@ public class Cluster extends SubCommand {
         return false;
     }
 
+    private void removePlayerPlots(final PlotCluster cluster, final UUID uuid, final String world) {
+        for (final Plot plot : PlotQuery.newQuery().inWorld(world).ownedBy(uuid)) {
+            PlotCluster current = plot.getCluster();
+            if (current != null && current.equals(cluster)) {
+                if (plot.getOwners().size() == 1) {
+                    plot.unclaim();
+                } else {
+                    for (UUID newOwner : plot.getOwners()) {
+                        if (!newOwner.equals(uuid)) {
+                            plot.setOwner(newOwner);
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     @Override
     public Collection<Command> tab(final PlotPlayer<?> player, final String[] args, final boolean space) {
         if (args.length == 1) {
@@ -916,11 +922,11 @@ public class Cluster extends SubCommand {
                     ) {
                     }).collect(Collectors.toCollection(LinkedList::new));
             if (Permissions.hasPermission(player, Permission.PERMISSION_CLUSTER) && args[0].length() > 0) {
-                commands.addAll(TabCompletions.completePlayers(args[0], Collections.emptyList()));
+                commands.addAll(TabCompletions.completePlayers(player, args[0], Collections.emptyList()));
             }
             return commands;
         }
-        return TabCompletions.completePlayers(String.join(",", args).trim(), Collections.emptyList());
+        return TabCompletions.completePlayers(player, String.join(",", args).trim(), Collections.emptyList());
     }
 
 }

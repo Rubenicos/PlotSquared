@@ -27,23 +27,15 @@ is to provide a lag-free and smooth experience.
 
 * [Download](https://www.spigotmc.org/resources/77506/)
 * [Discord](https://discord.gg/intellectualsites)
-* [Wiki](https://github.com/IntellectualSites/PlotSquared-Documentation/wiki)
+* [Wiki](https://intellectualsites.github.io/plotsquared-documentation/)
 * [Issues](https://github.com/IntellectualSites/PlotSquared/issues)
 * [Translations](https://intellectualsites.crowdin.com/plotsquared/)
+* [Contributing](https://github.com/IntellectualSites/.github/blob/main/CONTRIBUTING.md)
 
 ### Developer Resources
-* [API Documentation](https://github.com/IntellectualSites/PlotSquared-Documentation/wiki/API-Documentation)
-* [Event API](https://github.com/IntellectualSites/PlotSquared-Documentation/wiki/Events)
-* [Flag API](https://github.com/IntellectualSites/PlotSquared-Documentation/wiki/API-Flag)
-
-# Building
-Gradle is the **recommended** way to build the project. Use `./gradlew build` in the main project directory to build the project. Gradle is required if you intend to build or develop the Sponge module.
-
-# Contributing
-See [here](https://github.com/IntellectualSites/PlotSquared/blob/v6/CONTRIBUTING.md)
-
-## Suggestions
-Suggestions are welcome! We have a separate issue tracker for suggestions, that can be found in [this](https://github.com/IntellectualSites/PlotSquaredSuggestions) repository.
+* [API Documentation](https://intellectualsites.github.io/plotsquared-documentation/api/API-Documentation)
+* [Event API](https://intellectualsites.github.io/plotsquared-documentation/api/Event-API)
+* [Flag API](https://intellectualsites.github.io/plotsquared-documentation/api/API-Flag)
 
 # Official Addons
 * [Plot2Dynmap](http://www.spigotmc.org/resources/plot2dynmap.1292/)

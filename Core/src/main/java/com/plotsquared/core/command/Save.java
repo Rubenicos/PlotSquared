@@ -8,7 +8,7 @@
  *                                    | |
  *                                    |_|
  *            PlotSquared plot management system for Minecraft
- *                  Copyright (C) 2021 IntellectualSites
+ *               Copyright (C) 2014 - 2022 IntellectualSites
  *
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -50,7 +50,7 @@ import java.util.UUID;
  * @deprecated In favor of "/plot download" (Arkitektonika) and scheduled
  *         for removal within the next major release.
  */
-@Deprecated(forRemoval = true)
+@Deprecated(forRemoval = true, since = "6.0.9")
 @CommandDeclaration(command = "save",
         category = CommandCategory.SCHEMATIC,
         requiredType = RequiredType.NONE,

@@ -8,7 +8,7 @@
  *                                    | |
  *                                    |_|
  *            PlotSquared plot management system for Minecraft
- *                  Copyright (C) 2021 IntellectualSites
+ *               Copyright (C) 2014 - 2022 IntellectualSites
  *
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -104,7 +104,7 @@ public class Rate extends SubCommand {
                     UUID uuid = player.getUUID();
                     for (Plot p : plots) {
                         if ((!Settings.Done.REQUIRED_FOR_RATINGS || DoneFlag.isDone(p)) && p
-                                .isBasePlot() && (!p.getRatings().containsKey(uuid)) && !p
+                                .isBasePlot() && !p.getRatings().containsKey(uuid) && !p
                                 .isAdded(uuid)) {
                             p.teleportPlayer(player, TeleportCause.COMMAND_RATE, result -> {
                             });
@@ -292,11 +292,11 @@ public class Rate extends SubCommand {
                     .map(completion -> new Command(null, true, completion, "", RequiredType.PLAYER, CommandCategory.INFO) {
                     }).collect(Collectors.toCollection(LinkedList::new));
             if (Permissions.hasPermission(player, Permission.PERMISSION_RATE) && args[0].length() > 0) {
-                commands.addAll(TabCompletions.completePlayers(args[0], Collections.emptyList()));
+                commands.addAll(TabCompletions.completePlayers(player, args[0], Collections.emptyList()));
             }
             return commands;
         }
-        return TabCompletions.completePlayers(String.join(",", args).trim(), Collections.emptyList());
+        return TabCompletions.completePlayers(player, String.join(",", args).trim(), Collections.emptyList());
     }
 
     private static class MutableInt {

@@ -8,7 +8,7 @@
  *                                    | |
  *                                    |_|
  *            PlotSquared plot management system for Minecraft
- *                  Copyright (C) 2021 IntellectualSites
+ *               Copyright (C) 2014 - 2022 IntellectualSites
  *
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -112,7 +112,7 @@ public class Trust extends Command {
                                     .hasPermission(player, Permission.PERMISSION_ADMIN_COMMAND_TRUST))) {
                         player.sendMessage(
                                 TranslatableCaption.of("errors.invalid_player"),
-                                Template.of("value", PlayerManager.getName(uuid))
+                                Template.of("value", PlayerManager.resolveName(uuid).getComponent(player))
                         );
                         iterator.remove();
                         continue;
@@ -120,7 +120,7 @@ public class Trust extends Command {
                     if (currentPlot.isOwner(uuid)) {
                         player.sendMessage(
                                 TranslatableCaption.of("member.already_added"),
-                                Template.of("value", PlayerManager.getName(uuid))
+                                Template.of("value", PlayerManager.resolveName(uuid).getComponent(player))
                         );
                         iterator.remove();
                         continue;
@@ -128,7 +128,7 @@ public class Trust extends Command {
                     if (currentPlot.getTrusted().contains(uuid)) {
                         player.sendMessage(
                                 TranslatableCaption.of("member.already_added"),
-                                Template.of("value", PlayerManager.getName(uuid))
+                                Template.of("value", PlayerManager.resolveName(uuid).getComponent(player))
                         );
                         iterator.remove();
                         continue;
@@ -138,7 +138,7 @@ public class Trust extends Command {
                 checkTrue(!uuids.isEmpty(), null);
                 int localTrustSize = currentPlot.getTrusted().size();
                 int maxTrustSize = Permissions.hasPermissionRange(player, Permission.PERMISSION_TRUST, Settings.Limit.MAX_PLOTS);
-                if (localTrustSize > maxTrustSize) {
+                if (localTrustSize >= maxTrustSize) {
                     player.sendMessage(
                             TranslatableCaption.of("members.plot_max_members_trusted"),
                             Template.of("amount", String.valueOf(localTrustSize))
@@ -168,7 +168,7 @@ public class Trust extends Command {
 
     @Override
     public Collection<Command> tab(final PlotPlayer<?> player, final String[] args, final boolean space) {
-        return TabCompletions.completePlayers(String.join(",", args).trim(), Collections.emptyList());
+        return TabCompletions.completePlayers(player, String.join(",", args).trim(), Collections.emptyList());
     }
 
 }

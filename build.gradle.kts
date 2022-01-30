@@ -1,6 +1,7 @@
 import com.github.jengelman.gradle.plugins.shadow.ShadowPlugin
 import org.cadixdev.gradle.licenser.LicenseExtension
 import org.cadixdev.gradle.licenser.Licenser
+import java.net.URI
 
 plugins {
     java
@@ -11,22 +12,13 @@ plugins {
     alias(libs.plugins.shadow)
     alias(libs.plugins.licenser)
     alias(libs.plugins.grgit)
+    alias(libs.plugins.nexus)
 
     eclipse
     idea
 }
 
-var ver by extra("6.1.2")
-var versuffix by extra("-SNAPSHOT")
-val versionsuffix: String? by project
-if (versionsuffix != null) {
-    versuffix = "-$versionsuffix"
-}
-version = if (!project.hasProperty("release")) {
-    ver + versuffix
-} else {
-    ver
-}
+version = "6.4.1-SNAPSHOT"
 
 allprojects {
     group = "com.plotsquared"
@@ -41,13 +33,13 @@ allprojects {
         }
 
         maven {
-            name = "Jitpack"
-            url = uri("https://jitpack.io")
+            name = "Sonatype OSS (S01)"
+            url = uri("https://s01.oss.sonatype.org/content/repositories/snapshots")
         }
 
         maven {
-            name = "IntellectualSites"
-            url = uri("https://mvn.intellectualsites.com/content/groups/public/")
+            name = "Jitpack"
+            url = uri("https://jitpack.io")
         }
 
         maven {
@@ -75,14 +67,21 @@ val javadocDir = rootDir.resolve("docs").resolve("javadoc").resolve(project.name
 allprojects {
     dependencies {
         // Tests
-        testImplementation("junit:junit:4.13.2")
-        testImplementation("org.junit.jupiter:junit-jupiter:5.7.2")
+        testImplementation("org.junit.jupiter:junit-jupiter:5.8.2")
     }
 
     plugins.withId("java") {
         the<JavaPluginExtension>().toolchain {
-            languageVersion.set(JavaLanguageVersion.of(16))
+            languageVersion.set(JavaLanguageVersion.of(17))
         }
+    }
+
+    tasks.compileJava.configure {
+        options.release.set(17)
+    }
+
+    configurations.all {
+        attributes.attribute(TargetJvmVersion.TARGET_JVM_VERSION_ATTRIBUTE, 17)
     }
 
     configure<LicenseExtension> {
@@ -103,6 +102,9 @@ allprojects {
 
     signing {
         if (!version.toString().endsWith("-SNAPSHOT")) {
+            val signingKey: String? by project
+            val signingPassword: String? by project
+            useInMemoryPgpKeys(signingKey, signingPassword)
             signing.isRequired
             sign(publishing.publications)
         }
@@ -111,8 +113,6 @@ allprojects {
     publishing {
         publications {
             create<MavenPublication>("maven") {
-                // This includes not only the original jar (i.e. not shadowJar),
-                // but also sources & javadocs due to the above java block.
                 from(components["java"])
 
                 pom {
@@ -133,18 +133,23 @@ allprojects {
                         developer {
                             id.set("Sauilitired")
                             name.set("Alexander Söderberg")
+                            organization.set("IntellectualSites")
                         }
                         developer {
                             id.set("NotMyFault")
                             name.set("NotMyFault")
+                            organization.set("IntellectualSites")
+                            email.set("contact@notmyfault.dev")
                         }
                         developer {
                             id.set("SirYwell")
                             name.set("Hannes Greule")
+                            organization.set("IntellectualSites")
                         }
                         developer {
                             id.set("dordsor21")
                             name.set("dordsor21")
+                            organization.set("IntellectualSites")
                         }
                     }
 
@@ -159,34 +164,6 @@ allprojects {
                         url.set("https://github.com/IntellectualSites/PlotSquared/issues")
                     }
                 }
-            }
-        }
-
-        repositories {
-            mavenLocal() // Install to own local repository
-
-            // Accept String? to not err if they're not present.
-            // Check that they both exist before adding the repo, such that
-            // `credentials` doesn't err if one is null.
-            // It's not pretty, but this way it can compile.
-            val nexusUsername: String? by project
-            val nexusPassword: String? by project
-            if (nexusUsername != null && nexusPassword != null) {
-                maven {
-                    val releasesRepositoryUrl = "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
-                    val snapshotRepositoryUrl = "https://s01.oss.sonatype.org/content/repositories/snapshots/"
-                    url = uri(
-                            if (version.toString().endsWith("-SNAPSHOT")) snapshotRepositoryUrl
-                            else releasesRepositoryUrl
-                    )
-
-                    credentials {
-                        username = nexusUsername
-                        password = nexusPassword
-                    }
-                }
-            } else {
-                logger.warn("No nexus repository is added; nexusUsername or nexusPassword is null.")
             }
         }
     }
@@ -217,10 +194,6 @@ allprojects {
             )
         }
 
-        jar {
-            this.archiveClassifier.set("jar")
-        }
-
         shadowJar {
             this.archiveClassifier.set(null as String?)
             this.archiveFileName.set("${project.name}-${project.version}.${this.archiveExtension.getOrElse("jar")}")
@@ -235,6 +208,15 @@ allprojects {
         }
     }
 
+}
+
+nexusPublishing {
+    repositories {
+        sonatype {
+            nexusUrl.set(URI.create("https://s01.oss.sonatype.org/service/local/"))
+            snapshotRepositoryUrl.set(URI.create("https://s01.oss.sonatype.org/content/repositories/snapshots/"))
+        }
+    }
 }
 
 tasks {
@@ -261,7 +243,7 @@ tasks {
 
                 val rootOptions = aggregatedJavadocs.options as StandardJavadocDocletOptions
                 val subOptions = task.options as StandardJavadocDocletOptions
-                rootOptions.links(*subOptions.links.orEmpty().minus(rootOptions.links.orEmpty()).toTypedArray())
+                rootOptions.links(*subOptions.links.orEmpty().minus(rootOptions.links.orEmpty().toSet()).toTypedArray())
             }
         }
     }

@@ -8,7 +8,7 @@
  *                                    | |
  *                                    |_|
  *            PlotSquared plot management system for Minecraft
- *                  Copyright (C) 2021 IntellectualSites
+ *               Copyright (C) 2014 - 2022 IntellectualSites
  *
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -57,7 +57,8 @@ public class Info extends SubCommand {
         if (args.length > 0) {
             arg = args[0];
             switch (arg) {
-                case "trusted", "alias", "inv", "biome", "denied", "flags", "id", "size", "members", "creationdate", "seen", "owner", "rating", "likes" -> plot = Plot
+                // TODO: (re?)implement /plot info inv. (it was never properly implemented)
+                case "trusted", "alias", "biome", "denied", "flags", "id", "size", "members", "creationdate", "seen", "owner", "rating", "likes" -> plot = Plot
                         .getPlotFromString(player, null, false);
                 default -> {
                     plot = Plot.getPlotFromString(player, arg, false);
@@ -161,7 +162,7 @@ public class Info extends SubCommand {
                 }).collect(Collectors.toCollection(LinkedList::new));
 
         if (Permissions.hasPermission(player, Permission.PERMISSION_AREA_INFO_FORCE) && args[0].length() > 0) {
-            commands.addAll(TabCompletions.completePlayers(args[0], Collections.emptyList()));
+            commands.addAll(TabCompletions.completePlayers(player, args[0], Collections.emptyList()));
         }
 
         return commands;

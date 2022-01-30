@@ -8,7 +8,7 @@
  *                                    | |
  *                                    |_|
  *            PlotSquared plot management system for Minecraft
- *                  Copyright (C) 2021 IntellectualSites
+ *               Copyright (C) 2014 - 2022 IntellectualSites
  *
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -253,22 +253,33 @@ public class HybridPlotWorld extends ClassicPlotWorld {
         int shift = this.ROAD_WIDTH / 2;
         int oddshift = (this.ROAD_WIDTH & 1) == 0 ? 0 : 1;
 
-        SCHEM_Y = Math.min(PLOT_HEIGHT, ROAD_HEIGHT);
+        SCHEM_Y = schematicStartHeight();
         int plotY = PLOT_HEIGHT - SCHEM_Y;
-        int roadY = ROAD_HEIGHT - SCHEM_Y;
+        int minRoadWall = Settings.Schematics.USE_WALL_IN_ROAD_SCHEM_HEIGHT ? Math.min(ROAD_HEIGHT, WALL_HEIGHT) : ROAD_HEIGHT;
+        int roadY = minRoadWall - SCHEM_Y;
 
-        if (schematic3 != null && schematic3.getClipboard().getDimensions().getY() == 256) {
-            SCHEM_Y = 0;
-            plotY = 0;
-            roadY = ROAD_HEIGHT;
+        if (schematic3 != null) {
+            if (schematic3.getClipboard().getDimensions().getY() == 256) {
+                SCHEM_Y = plotY = 0;
+            } else if (!Settings.Schematics.PASTE_ON_TOP) {
+                SCHEM_Y = plotY = getMinBuildHeight();
+            }
         }
 
-        if (schematic1 != null && schematic1.getClipboard().getDimensions().getY() == 256) {
-            SCHEM_Y = 0;
-            if (schematic3 != null && schematic3.getClipboard().getDimensions().getY() != 256) {
-                plotY = PLOT_HEIGHT;
+        if (schematic1 != null) {
+            if (schematic1.getClipboard().getDimensions().getY() == 256) {
+                SCHEM_Y = roadY = 0;
+                if (schematic3 != null && schematic3.getClipboard().getDimensions().getY() != 256
+                        && !Settings.Schematics.PASTE_ON_TOP) {
+                    plotY = PLOT_HEIGHT;
+                }
+            } else if (!Settings.Schematics.PASTE_ROAD_ON_TOP) {
+                SCHEM_Y = roadY = getMinBuildHeight();
+                if (schematic3 != null && schematic3.getClipboard().getDimensions().getY() != 256
+                        && !Settings.Schematics.PASTE_ON_TOP) {
+                    plotY = PLOT_HEIGHT;
+                }
             }
-            roadY = 0;
         }
 
         if (schematic3 != null) {
@@ -324,7 +335,7 @@ public class HybridPlotWorld extends ClassicPlotWorld {
                 LOGGER.info("- plot schematic: {}", schematic3File.getPath());
             }
         }
-        if (schematic1 == null || schematic2 == null || this.ROAD_WIDTH == 0) {
+        if ((schematic1 == null&& schematic2 == null) || this.ROAD_WIDTH == 0) {
             if (Settings.DEBUG) {
                 LOGGER.info("- schematic: false");
             }
@@ -340,6 +351,10 @@ public class HybridPlotWorld extends ClassicPlotWorld {
         short w1 = (short) d1.getX();
         short l1 = (short) d1.getZ();
         short h1 = (short) d1.getY();
+        // Workaround for schematic height issue if proper calculation of road schematic height is disabled
+        if (!Settings.Schematics.USE_WALL_IN_ROAD_SCHEM_HEIGHT) {
+            h1 += Math.max(ROAD_HEIGHT - WALL_HEIGHT, 0);
+        }
 
         BlockVector3 min = blockArrayClipboard1.getMinimumPoint();
         for (short x = 0; x < w1; x++) {
@@ -373,6 +388,10 @@ public class HybridPlotWorld extends ClassicPlotWorld {
         short w2 = (short) d2.getX();
         short l2 = (short) d2.getZ();
         short h2 = (short) d2.getY();
+        // Workaround for schematic height issue if proper calculation of road schematic height is disabled
+        if (!Settings.Schematics.USE_WALL_IN_ROAD_SCHEM_HEIGHT) {
+            h2 += Math.max(ROAD_HEIGHT - WALL_HEIGHT, 0);
+        }
         min = blockArrayClipboard2.getMinimumPoint();
         for (short x = 0; x < w2; x++) {
             for (short z = 0; z < l2; z++) {

@@ -8,7 +8,7 @@
  *                                    | |
  *                                    |_|
  *            PlotSquared plot management system for Minecraft
- *                  Copyright (C) 2021 IntellectualSites
+ *               Copyright (C) 2014 - 2022 IntellectualSites
  *
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -60,7 +60,7 @@ import java.util.List;
 
 public class EntitySpawnListener implements Listener {
 
-    private final static String KEY = "P2";
+    private static final String KEY = "P2";
     private static boolean ignoreTP = false;
     private static boolean hasPlotArea = false;
     private static String areaName = null;
@@ -75,8 +75,7 @@ public class EntitySpawnListener implements Listener {
 
     public static void testCreate(final Entity entity) {
         @NonNull World world = entity.getWorld();
-        if (areaName == world.getName()) {
-        } else {
+        if (!world.getName().equals(areaName)) {
             areaName = world.getName();
             hasPlotArea = PlotSquared.get().getPlotAreaManager().hasPlotArea(areaName);
         }

@@ -8,7 +8,7 @@
  *                                    | |
  *                                    |_|
  *            PlotSquared plot management system for Minecraft
- *                  Copyright (C) 2021 IntellectualSites
+ *               Copyright (C) 2014 - 2022 IntellectualSites
  *
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -506,16 +506,29 @@ public class ClassicPlotManager extends SquarePlotManager {
                 Location.at(
                         classicPlotWorld.getWorldName(),
                         sx,
-                        Math.min(classicPlotWorld.WALL_HEIGHT, classicPlotWorld.ROAD_HEIGHT) + 1,
+                        classicPlotWorld.schematicStartHeight() + 1,
                         sz + 1
                 ),
                 Location.at(classicPlotWorld.getWorldName(), ex, maxY, ez - 1), BlockTypes.AIR.getDefaultState()
         );
-        queue.setCuboid(
-                Location.at(classicPlotWorld.getWorldName(), sx, 0, sz + 1),
-                Location.at(classicPlotWorld.getWorldName(), ex, 0, ez - 1),
-                BlockUtil.get((short) 7, (byte) 0)
-        );
+        if (classicPlotWorld.PLOT_BEDROCK) {
+            queue.setCuboid(
+                    Location.at(classicPlotWorld.getWorldName(), sx, 0, sz + 1),
+                    Location.at(classicPlotWorld.getWorldName(), ex, 0, ez - 1),
+                    BlockTypes.BEDROCK.getDefaultState()
+            );
+            queue.setCuboid(
+                    Location.at(classicPlotWorld.getWorldName(), sx, 1, sz + 1),
+                    Location.at(classicPlotWorld.getWorldName(), sx, classicPlotWorld.WALL_HEIGHT, ez - 1),
+                    classicPlotWorld.WALL_FILLING.toPattern()
+            );
+        } else {
+            queue.setCuboid(
+                    Location.at(classicPlotWorld.getWorldName(), sx, 0, sz + 1),
+                    Location.at(classicPlotWorld.getWorldName(), sx, classicPlotWorld.WALL_HEIGHT, ez - 1),
+                    classicPlotWorld.WALL_FILLING.toPattern()
+            );
+        }
         queue.setCuboid(
                 Location.at(classicPlotWorld.getWorldName(), sx, 1, sz + 1),
                 Location.at(classicPlotWorld.getWorldName(), sx, classicPlotWorld.WALL_HEIGHT, ez - 1),
@@ -568,7 +581,7 @@ public class ClassicPlotManager extends SquarePlotManager {
                 Location.at(
                         classicPlotWorld.getWorldName(),
                         sx + 1,
-                        Math.min(classicPlotWorld.WALL_HEIGHT, classicPlotWorld.ROAD_HEIGHT) + 1,
+                        classicPlotWorld.schematicStartHeight() + 1,
                         sz
                 ),
                 Location.at(classicPlotWorld.getWorldName(), ex - 1, classicPlotWorld.getPlotManager().getWorldHeight(), ez),
@@ -663,7 +676,7 @@ public class ClassicPlotManager extends SquarePlotManager {
                         Location.at(
                                 classicPlotWorld.getWorldName(),
                                 sx,
-                                Math.min(classicPlotWorld.PLOT_HEIGHT, classicPlotWorld.ROAD_HEIGHT) + 1,
+                                classicPlotWorld.schematicStartHeight() + 1,
                                 sz
                         ),
                         Location.at(classicPlotWorld.getWorldName(), ex, classicPlotWorld.getPlotManager().getWorldHeight(), ez),
@@ -703,7 +716,7 @@ public class ClassicPlotManager extends SquarePlotManager {
                         Location.at(
                                 classicPlotWorld.getWorldName(),
                                 sx,
-                                Math.min(classicPlotWorld.PLOT_HEIGHT, classicPlotWorld.ROAD_HEIGHT) + 1,
+                                classicPlotWorld.schematicStartHeight() + 1,
                                 sz
                         ),
                         Location.at(classicPlotWorld.getWorldName(), ex, classicPlotWorld.getPlotManager().getWorldHeight(), ez),
@@ -742,7 +755,7 @@ public class ClassicPlotManager extends SquarePlotManager {
                         Location.at(
                                 classicPlotWorld.getWorldName(),
                                 sx,
-                                Math.min(classicPlotWorld.PLOT_HEIGHT, classicPlotWorld.ROAD_HEIGHT) + 1,
+                                classicPlotWorld.schematicStartHeight() + 1,
                                 sz
                         ),
                         Location.at(classicPlotWorld.getWorldName(), ex, classicPlotWorld.getPlotManager().getWorldHeight(), ez),

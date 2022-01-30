@@ -8,7 +8,7 @@
  *                                    | |
  *                                    |_|
  *            PlotSquared plot management system for Minecraft
- *                  Copyright (C) 2021 IntellectualSites
+ *               Copyright (C) 2014 - 2022 IntellectualSites
  *
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -176,7 +176,7 @@ public class BukkitRegionManager extends RegionManager {
             final boolean ignoreAugment,
             final @Nullable Runnable whenDone
     ) {
-        final BukkitWorld world = new BukkitWorld((World) pos1.getWorld());
+        final BukkitWorld world = (BukkitWorld) worldUtil.getWeWorld(pos1.getWorldName());
 
         final int p1x = pos1.getX();
         final int p1z = pos1.getZ();

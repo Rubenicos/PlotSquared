@@ -8,7 +8,7 @@
  *                                    | |
  *                                    |_|
  *            PlotSquared plot management system for Minecraft
- *                  Copyright (C) 2021 IntellectualSites
+ *               Copyright (C) 2014 - 2022 IntellectualSites
  *
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -147,6 +147,8 @@ import java.io.File;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -216,6 +218,7 @@ public final class BukkitPlatform extends JavaPlugin implements Listener, PlotPl
     private PlatformWorldManager<World> worldManager;
     private Locale serverLocale;
 
+    @SuppressWarnings("StringSplitter")
     @Override
     public int @NonNull [] serverVersion() {
         if (this.version == null) {
@@ -266,7 +269,7 @@ public final class BukkitPlatform extends JavaPlugin implements Listener, PlotPl
                     faweHook = true;
                 } catch (Exception ignored) {
                     LOGGER.error("Incompatible version of FAWE to enable hook, please upgrade: https://ci.athion" +
-                            ".net/job/FastAsyncWorldEdit-1.17/");
+                            ".net/job/FastAsyncWorldEdit/");
                 }
             }
         }
@@ -320,8 +323,6 @@ public final class BukkitPlatform extends JavaPlugin implements Listener, PlotPl
 
         // Comments
         CommentManager.registerDefaultInboxes();
-
-        plotSquared.startExpiryTasks();
 
         // Do stuff that was previously done in PlotSquared
         // Kill entities
@@ -418,6 +419,8 @@ public final class BukkitPlatform extends JavaPlugin implements Listener, PlotPl
                 }
             }, TaskTime.ticks(1L));
         }
+
+        plotSquared.startExpiryTasks();
 
         // Once the server has loaded force updating all generators known to P2
         TaskManager.runTaskLater(() -> PlotSquared.platform().setupUtils().updateGenerators(true), TaskTime.ticks(1L));
@@ -968,7 +971,6 @@ public final class BukkitPlatform extends JavaPlugin implements Listener, PlotPl
                                                 }
                                                 iterator.remove();
                                                 entity.remove();
-                                                continue;
                                             }
                                         }
                                     } else {
@@ -980,7 +982,6 @@ public final class BukkitPlatform extends JavaPlugin implements Listener, PlotPl
                                             }
                                             iterator.remove();
                                             entity.remove();
-                                            continue;
                                         }
                                     }
                                 }
@@ -1141,8 +1142,10 @@ public final class BukkitPlatform extends JavaPlugin implements Listener, PlotPl
     @Override
     public @NonNull String pluginsFormatted() {
         StringBuilder msg = new StringBuilder();
-        Plugin[] plugins = Bukkit.getServer().getPluginManager().getPlugins();
-        msg.append("Plugins (").append(plugins.length).append("): \n");
+        List<Plugin> plugins = new ArrayList<>();
+        Collections.addAll(plugins, Bukkit.getServer().getPluginManager().getPlugins());
+        plugins.sort(Comparator.comparing(Plugin::getName));
+        msg.append("Plugins (").append(plugins.size()).append("): \n");
         for (Plugin p : plugins) {
             msg.append(" - ").append(p.getName()).append(":").append("\n")
                     .append("  • Version: ").append(p.getDescription().getVersion()).append("\n")
@@ -1152,6 +1155,21 @@ public final class BukkitPlatform extends JavaPlugin implements Listener, PlotPl
                     .append("  • Load Before: ").append(p.getDescription().getLoadBefore()).append("\n")
                     .append("  • Dependencies: ").append(p.getDescription().getDepend()).append("\n")
                     .append("  • Soft Dependencies: ").append(p.getDescription().getSoftDepend()).append("\n");
+        }
+        return msg.toString();
+    }
+
+    @Override
+    @SuppressWarnings("ConstantConditions")
+    public @NonNull String worldEditImplementations() {
+        StringBuilder msg = new StringBuilder();
+        if (Bukkit.getPluginManager().getPlugin("FastAsyncWorldEdit") != null) {
+            msg.append("FastAsyncWorldEdit: ").append(Bukkit.getPluginManager().getPlugin("FastAsyncWorldEdit").getDescription().getVersion());
+        } else if (Bukkit.getPluginManager().getPlugin("AsyncWorldEdit") != null) {
+            msg.append("AsyncWorldEdit: ").append(Bukkit.getPluginManager().getPlugin("AsyncWorldEdit").getDescription().getVersion()).append("\n");
+            msg.append("WorldEdit: ").append(Bukkit.getPluginManager().getPlugin("WorldEdit").getDescription().getVersion());
+        } else {
+            msg.append("WorldEdit: ").append(Bukkit.getPluginManager().getPlugin("WorldEdit").getDescription().getVersion());
         }
         return msg.toString();
     }
@@ -1180,6 +1198,11 @@ public final class BukkitPlatform extends JavaPlugin implements Listener, PlotPl
         return this.injector;
     }
 
+    @Override
+    public @NonNull PlotAreaManager plotAreaManager() {
+        return this.plotAreaManager;
+    }
+
     @NonNull
     @Override
     public Locale getLocale() {
@@ -1199,7 +1222,7 @@ public final class BukkitPlatform extends JavaPlugin implements Listener, PlotPl
 
     @Override
     @NonNull
-    @SuppressWarnings("ALL")
+    @SuppressWarnings("unchecked")
     public PlayerManager<? extends PlotPlayer<Player>, ? extends Player> playerManager() {
         return (PlayerManager<BukkitPlayer, Player>) injector().getInstance(PlayerManager.class);
     }
