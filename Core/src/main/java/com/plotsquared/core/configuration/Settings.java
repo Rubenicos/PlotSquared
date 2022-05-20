@@ -201,7 +201,7 @@ public class Settings extends Config {
         public List<String> WORLDS = new ArrayList<>(Collections.singletonList("*"));
 
 
-        @Comment("See: https://intellectualsites.github.io/plotsquared-documentation/optimization/Plot-analysis for a description of each value.")
+        @Comment("See: https://intellectualsites.github.io/plotsquared-documentation/optimization/plot-analysis for a description of each value.")
         public static final class CALIBRATION {
 
             public int VARIETY = 0;
@@ -221,7 +221,7 @@ public class Settings extends Config {
 
 
     @Comment({"Chunk processor related settings",
-            "See https://intellectualsites.github.io/plotsquared-documentation/optimization/Chunk-processor for more information."})
+            "See https://intellectualsites.github.io/plotsquared-documentation/optimization/chunk-processor for more information."})
     public static class Chunk_Processor {
 
         @Comment("Auto trim will not save chunks which aren't claimed")
@@ -249,6 +249,9 @@ public class Settings extends Config {
         public static int UUID_CACHE_SIZE = 100000;
         @Comment("Rate limit (per 10 minutes) for background UUID fetching from the Mojang API")
         public static int BACKGROUND_LIMIT = 200;
+        @Comment("Whether the Mojang API service is enabled for impromptu api calls. If false only the Background task will use" +
+                " http requests to fill the UUID cache (requires restart)")
+        public static boolean IMPROMPTU_SERVICE_MOJANG_API = true;
         @Comment("Rate limit (per 10 minutes) for random UUID fetching from the Mojang API")
         public static int IMPROMPTU_LIMIT = 300;
         @Comment("Timeout (in milliseconds) for non-blocking UUID requests (mostly commands)")
@@ -284,7 +287,7 @@ public class Settings extends Config {
         @Comment("Always show explosion Particles, even if explosion flag is set to false")
         public static boolean ALWAYS_SHOW_EXPLOSIONS = false;
         @Comment({"Blocks that may not be used in plot components",
-                "Checkout the wiki article regarding plot components before modifying: https://intellectualsites.github.io/plotsquared-documentation/customization/Plot-Components"})
+                "Checkout the wiki article regarding plot components before modifying: https://intellectualsites.github.io/plotsquared-documentation/customization/plot-components"})
         public static List<String>
                 INVALID_BLOCKS = Arrays.asList(
                 // Acacia Stuff
@@ -406,7 +409,7 @@ public class Settings extends Config {
 
 
     @Comment({"Schematic Settings",
-            "See https://intellectualsites.github.io/plotsquared-documentation/schematics/Schematic-on-Claim for more information."})
+            "See https://intellectualsites.github.io/plotsquared-documentation/schematics/schematic-on-claim for more information."})
     public static final class Schematics {
 
         @Comment(
@@ -535,7 +538,7 @@ public class Settings extends Config {
 
 
     @Comment({"Backup related settings",
-            "See https://intellectualsites.github.io/plotsquared-documentation/Plot-Backups for more information."})
+            "See https://intellectualsites.github.io/plotsquared-documentation/plot-backups for more information."})
     public static final class Backup {
 
         @Comment("Automatically backup plots when destructive commands are performed, e.g. /plot clear")
@@ -691,6 +694,7 @@ public class Settings extends Config {
         @Comment({"If blocks at the edges of queued operations should be set causing updates",
                 " - Slightly slower, but prevents issues such as fences left connected to nothing"})
         public static boolean UPDATE_EDGES = true;
+
     }
 
     @Comment("Settings related to tab completion")
@@ -784,7 +788,7 @@ public class Settings extends Config {
         public static boolean
                 PERSISTENT_ROAD_REGEN = true;
         @Comment({"Enable the `/plot component` preset GUI",
-                "Read more about components here: https://intellectualsites.github.io/plotsquared-documentation/customization/Plot-Components"})
+                "Read more about components here: https://intellectualsites.github.io/plotsquared-documentation/customization/plot-components"})
         public static boolean COMPONENT_PRESETS = true;
         @Comment("Enable per user locale")
         public static boolean PER_USER_LOCALE = false;

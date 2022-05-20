@@ -18,7 +18,7 @@ plugins {
     idea
 }
 
-version = "6.4.1-SNAPSHOT"
+version = "6.8.1-SNAPSHOT"
 
 allprojects {
     group = "com.plotsquared"
@@ -40,6 +40,9 @@ allprojects {
         maven {
             name = "Jitpack"
             url = uri("https://jitpack.io")
+            content {
+                includeModule("com.github.MilkBowl", "VaultAPI")
+            }
         }
 
         maven {
@@ -137,7 +140,7 @@ allprojects {
                         }
                         developer {
                             id.set("NotMyFault")
-                            name.set("NotMyFault")
+                            name.set("Alexander Brandes")
                             organization.set("IntellectualSites")
                             email.set("contact@notmyfault.dev")
                         }

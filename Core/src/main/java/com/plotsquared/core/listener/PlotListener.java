@@ -174,21 +174,9 @@ public class PlotListener {
             String greeting = plot.getFlag(GreetingFlag.class);
             if (!greeting.isEmpty()) {
                 if (!Settings.Chat.NOTIFICATION_AS_ACTIONBAR) {
-                    player.sendMessage(
-                            TranslatableCaption.of("flags.greeting_flag_format"),
-                            Template.of("world", plot.getWorldName()),
-                            Template.of("plot_id", plot.getId().toString()),
-                            Template.of("alias", plot.getAlias()),
-                            Template.of("greeting", greeting)
-                    );
+                    plot.format(StaticCaption.of(greeting), player, false).thenAcceptAsync(player::sendMessage);
                 } else {
-                    player.sendActionBar(
-                            TranslatableCaption.of("flags.greeting_flag_format"),
-                            Template.of("world", plot.getWorldName()),
-                            Template.of("plot_id", plot.getId().toString()),
-                            Template.of("alias", plot.getAlias()),
-                            Template.of("greeting", greeting)
-                    );
+                    plot.format(StaticCaption.of(greeting), player, false).thenAcceptAsync(player::sendActionBar);
                 }
             }
 
@@ -321,7 +309,7 @@ public class PlotListener {
                         }
                         if ((lastPlot != null) && plot.getId().equals(lastPlot.getId()) && plot.hasOwner()) {
                             final UUID plotOwner = plot.getOwnerAbs();
-                            String owner = PlayerManager.resolveName(plotOwner, false).getComponent(player);
+                            String owner = PlayerManager.resolveName(plotOwner, true).getComponent(player);
                             Caption header = fromFlag ? StaticCaption.of(title) : TranslatableCaption.of("titles" +
                                     ".title_entered_plot");
                             Caption subHeader = fromFlag ? StaticCaption.of(subtitle) : TranslatableCaption.of("titles" +
@@ -413,21 +401,9 @@ public class PlotListener {
                 String farewell = plot.getFlag(FarewellFlag.class);
                 if (!farewell.isEmpty()) {
                     if (!Settings.Chat.NOTIFICATION_AS_ACTIONBAR) {
-                        player.sendMessage(
-                                TranslatableCaption.of("flags.farewell_flag_format"),
-                                Template.of("world", plot.getWorldName()),
-                                Template.of("plot_id", plot.getId().toString()),
-                                Template.of("alias", plot.getAlias()),
-                                Template.of("farewell", farewell)
-                        );
+                        plot.format(StaticCaption.of(farewell), player, false).thenAcceptAsync(player::sendMessage);
                     } else {
-                        player.sendActionBar(
-                                TranslatableCaption.of("flags.farewell_flag_format"),
-                                Template.of("world", plot.getWorldName()),
-                                Template.of("plot_id", plot.getId().toString()),
-                                Template.of("alias", plot.getAlias()),
-                                Template.of("farewell", farewell)
-                        );
+                        plot.format(StaticCaption.of(farewell), player, false).thenAcceptAsync(player::sendActionBar);
                     }
                 }
 

@@ -44,6 +44,9 @@ import java.util.UUID;
 
 public class WEManager {
 
+    private static final BlockVector3 MIN = BlockVector3.at(Integer.MIN_VALUE, Integer.MIN_VALUE, Integer.MIN_VALUE);
+    private static final BlockVector3 MAX = BlockVector3.at(Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE);
+
     public static boolean maskContains(Set<CuboidRegion> mask, int x, int y, int z) {
         for (CuboidRegion region : mask) {
             if (RegionUtil.contains(region, x, y, z)) {
@@ -91,10 +94,7 @@ public class WEManager {
         Location location = player.getLocation();
         String world = location.getWorldName();
         if (!PlotSquared.get().getPlotAreaManager().hasPlotArea(world)) {
-            regions.add(RegionUtil
-                    .createRegion(Integer.MIN_VALUE, Integer.MAX_VALUE, Integer.MIN_VALUE,
-                            Integer.MAX_VALUE
-                    ));
+            regions.add(new CuboidRegion(MIN, MAX));
             return regions;
         }
         PlotArea area = player.getApplicablePlotArea();

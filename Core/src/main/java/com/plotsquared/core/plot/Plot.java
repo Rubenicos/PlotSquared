@@ -122,7 +122,7 @@ import static com.plotsquared.core.util.entity.EntityCategories.CAP_VEHICLE;
  */
 public class Plot {
 
-
+    @Deprecated(forRemoval = true, since = "6.6.0")
     public static final int MAX_HEIGHT = 256;
 
     private static final Logger LOGGER = LogManager.getLogger("PlotSquared/" + Plot.class.getSimpleName());
@@ -1371,7 +1371,7 @@ public class Plot {
         int z = largest.getMinimumPoint().getZ() - 1;
         PlotManager manager = getManager();
         int y = isLoaded() ? this.worldUtil.getHighestBlockSynchronous(getWorldName(), x, z) : 62;
-        if (area.allowSigns() && (y <= 0 || y >= 255)) {
+        if (area.allowSigns() && (y <= area.getMinGenHeight() || y >= area.getMaxGenHeight())) {
             y = Math.max(y, manager.getSignLoc(this).getY() - 1);
         }
         return Location.at(getWorldName(), x, y + 1, z);
@@ -1387,7 +1387,7 @@ public class Plot {
         if (isLoaded()) {
             this.worldUtil.getHighestBlock(getWorldName(), x, z, y -> {
                 int height = y;
-                if (area.allowSigns() && (y <= 0 || y >= 255)) {
+                if (area.allowSigns() && (y <= area.getMinGenHeight() || y >= area.getMaxGenHeight())) {
                     height = Math.max(y, manager.getSignLoc(this).getY() - 1);
                 }
                 result.accept(Location.at(getWorldName(), x, height + 1, z));
@@ -1420,15 +1420,7 @@ public class Plot {
                         0
                 );
             }
-            Location location = Location
-                    .at(
-                            bottom.getWorldName(),
-                            bottom.getX() + home.getX(),
-                            bottom.getY() + home.getY(),
-                            bottom.getZ() + home.getZ(),
-                            home.getYaw(),
-                            home.getPitch()
-                    );
+            Location location = toHomeLocation(bottom, home);
             if (!this.worldUtil.getBlockSynchronous(location).getBlockType().getMaterial().isAir()) {
                 location = location.withY(
                         Math.max(1 + this.worldUtil.getHighestBlockSynchronous(
@@ -1461,15 +1453,7 @@ public class Plot {
                 return;
             }
             Location bottom = this.getBottomAbs();
-            Location location = Location
-                    .at(
-                            bottom.getWorldName(),
-                            bottom.getX() + home.getX(),
-                            bottom.getY() + home.getY(),
-                            bottom.getZ() + home.getZ(),
-                            home.getYaw(),
-                            home.getPitch()
-                    );
+            Location location = toHomeLocation(bottom, home);
             this.worldUtil.getBlock(location, block -> {
                 if (!block.getBlockType().getMaterial().isAir()) {
                     this.worldUtil.getHighestBlock(this.getWorldName(), location.getX(), location.getZ(),
@@ -1480,6 +1464,17 @@ public class Plot {
                 }
             });
         }
+    }
+
+    private Location toHomeLocation(Location bottom, BlockLoc relativeHome) {
+        return Location.at(
+                bottom.getWorldName(),
+                bottom.getX() + relativeHome.getX(),
+                relativeHome.getY(), // y is absolute
+                bottom.getZ() + relativeHome.getZ(),
+                relativeHome.getYaw(),
+                relativeHome.getPitch()
+        );
     }
 
     /**
@@ -1619,8 +1614,8 @@ public class Plot {
     public double getVolume() {
         double count = 0;
         for (CuboidRegion region : getRegions()) {
-            count += (region.getMaximumPoint().getX() - (double) region.getMinimumPoint().getX() + 1) * (
-                    region.getMaximumPoint().getZ() - (double) region.getMinimumPoint().getZ() + 1) * MAX_HEIGHT;
+            // CuboidRegion#getArea is deprecated and we want to ensure use of correct height
+            count += region.getLength() * region.getWidth() * (area.getMaxGenHeight() - area.getMinGenHeight() + 1);
         }
         return count;
     }
@@ -1738,7 +1733,6 @@ public class Plot {
             area.addPlot(this);
             updateWorldBorder();
         }
-        this.getPlotModificationManager().setSign(player.getName());
         player.sendMessage(TranslatableCaption.of("working.claimed"), Template.of("plot", this.getId().toString()));
         if (teleport) {
             if (!auto && Settings.Teleport.ON_CLAIM) {
@@ -1786,6 +1780,7 @@ public class Plot {
             );
         }
         plotworld.getPlotManager().claimPlot(this, null);
+        this.getPlotModificationManager().setSign(player.getName());
         return true;
     }
 
@@ -2438,8 +2433,8 @@ public class Plot {
             return regions_cache;
         }
         if (!this.isMerged()) {
-            Location pos1 = this.getBottomAbs();
-            Location pos2 = this.getTopAbs();
+            Location pos1 = this.getBottomAbs().withY(getArea().getMinBuildHeight());
+            Location pos2 = this.getTopAbs().withY(getArea().getMaxBuildHeight());
             connected_cache = Sets.newHashSet(this);
             CuboidRegion rg = new CuboidRegion(pos1.getBlockVector3(), pos2.getBlockVector3());
             regions_cache = Collections.singleton(rg);

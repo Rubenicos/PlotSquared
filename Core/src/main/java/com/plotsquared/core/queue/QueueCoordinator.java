@@ -35,6 +35,7 @@ import com.sk89q.worldedit.entity.Entity;
 import com.sk89q.worldedit.function.pattern.Pattern;
 import com.sk89q.worldedit.math.BlockVector2;
 import com.sk89q.worldedit.regions.CuboidRegion;
+import com.sk89q.worldedit.util.SideEffectSet;
 import com.sk89q.worldedit.world.World;
 import com.sk89q.worldedit.world.biome.BiomeType;
 import com.sk89q.worldedit.world.block.BaseBlock;
@@ -75,12 +76,29 @@ public abstract class QueueCoordinator {
      * @param x chunk x coordinate
      * @param z chunk z coordinate
      * @return a new {@link ScopedQueueCoordinator}
+     * @deprecated Use {@link ScopedQueueCoordinator#getForChunk(int, int, int, int)}
      */
+    @Deprecated(forRemoval = true, since = "6.6.0")
     public ScopedQueueCoordinator getForChunk(int x, int z) {
+        if (getWorld() == null) {
+            return getForChunk(x, z, PlotSquared.platform().versionMinHeight(), PlotSquared.platform().versionMaxHeight());
+        }
+        return getForChunk(x, z, getWorld().getMinY(), getWorld().getMaxY());
+    }
+
+    /**
+     * Get a {@link ScopedQueueCoordinator} limited to the chunk at the specific chunk Coordinates
+     *
+     * @param x chunk x coordinate
+     * @param z chunk z coordinate
+     * @return a new {@link ScopedQueueCoordinator}
+     * @since 6.6.0
+     */
+    public ScopedQueueCoordinator getForChunk(int x, int z, int minY, int maxY) {
         int bx = x << 4;
         int bz = z << 4;
-        return new ScopedQueueCoordinator(this, Location.at(getWorld().getName(), bx, 0, bz),
-                Location.at(getWorld().getName(), bx + 15, 255, bz + 255)
+        return new ScopedQueueCoordinator(this, Location.at(getWorld().getName(), bx, minY, bz),
+                Location.at(getWorld().getName(), bx + 15, maxY, bz + 15)
         );
     }
 
@@ -126,7 +144,8 @@ public abstract class QueueCoordinator {
     }
 
     /**
-     * Set a chunk object (e.g. the Bukkit Chunk object) to the queue
+     * Set a chunk object (e.g. the Bukkit Chunk object) to the queue. This will be used as fallback in case of WNA failure.
+     * Should ONLY be used in specific cases (i.e. generation, where a chunk is being populated)
      *
      * @param chunkObject chunk object. Usually the implementation-specific chunk (e.g. bukkit Chunk)
      */
@@ -229,6 +248,14 @@ public abstract class QueueCoordinator {
      * @return if setting biomes
      */
     public abstract boolean isSettingBiomes();
+
+    /**
+     * If the queue should accept biome placement
+     *
+     * @param enabled If biomes should be enabled
+     * @since 6.8.0
+     */
+    public abstract void setBiomesEnabled(boolean enabled);
 
     /**
      * Add entities to be created
@@ -396,6 +423,20 @@ public abstract class QueueCoordinator {
     public abstract void setLightingMode(@Nullable LightingMode mode);
 
     /**
+     * Get the overriding {@link SideEffectSet} to be used by the queue if it exists, else null
+     *
+     * @return Overriding {@link SideEffectSet} or null
+     */
+    public abstract @Nullable SideEffectSet getSideEffectSet();
+
+    /**
+     * Set the overriding {@link SideEffectSet} to be used by the queue. Null to use default side effects.
+     *
+     * @param sideEffectSet side effects to override with, or null to use default
+     */
+    public abstract void setSideEffectSet(@Nullable SideEffectSet sideEffectSet);
+
+    /**
      * Fill a cuboid between two positions with a BlockState
      *
      * @param pos1  1st cuboid position
@@ -404,7 +445,7 @@ public abstract class QueueCoordinator {
      */
     public void setCuboid(@NonNull Location pos1, @NonNull Location pos2, @NonNull BlockState block) {
         int yMin = Math.min(pos1.getY(), pos2.getY());
-        int yMax = Math.min(255, Math.max(pos1.getY(), pos2.getY()));
+        int yMax = Math.max(pos1.getY(), pos2.getY());
         int xMin = Math.min(pos1.getX(), pos2.getX());
         int xMax = Math.max(pos1.getX(), pos2.getX());
         int zMin = Math.min(pos1.getZ(), pos2.getZ());
@@ -427,7 +468,7 @@ public abstract class QueueCoordinator {
      */
     public void setCuboid(@NonNull Location pos1, @NonNull Location pos2, @NonNull Pattern blocks) {
         int yMin = Math.min(pos1.getY(), pos2.getY());
-        int yMax = Math.min(255, Math.max(pos1.getY(), pos2.getY()));
+        int yMax = Math.max(pos1.getY(), pos2.getY());
         int xMin = Math.min(pos1.getX(), pos2.getX());
         int xMax = Math.max(pos1.getX(), pos2.getX());
         int zMin = Math.min(pos1.getZ(), pos2.getZ());
@@ -450,7 +491,7 @@ public abstract class QueueCoordinator {
      */
     public void setBiomeCuboid(@NonNull Location pos1, @NonNull Location pos2, @NonNull BiomeType biome) {
         int yMin = Math.min(pos1.getY(), pos2.getY());
-        int yMax = Math.min(255, Math.max(pos1.getY(), pos2.getY()));
+        int yMax = Math.max(pos1.getY(), pos2.getY());
         int xMin = Math.min(pos1.getX(), pos2.getX());
         int xMax = Math.max(pos1.getX(), pos2.getX());
         int zMin = Math.min(pos1.getZ(), pos2.getZ());
@@ -462,6 +503,34 @@ public abstract class QueueCoordinator {
                 }
             }
         }
+    }
+
+    /**
+     * Get the min Y limit associated with the queue
+     */
+    protected int getMinY() {
+        return getWorld() != null ? getWorld().getMinY() : PlotSquared.platform().versionMinHeight();
+    }
+
+    /**
+     * Get the max Y limit associated with the queue
+     */
+    protected int getMaxY() {
+        return getWorld() != null ? getWorld().getMinY() : PlotSquared.platform().versionMaxHeight();
+    }
+
+    /**
+     * Get the min chunk layer associated with the queue. Usually 0 or -4;
+     */
+    protected int getMinLayer() {
+        return (getWorld() != null ? getWorld().getMinY() : PlotSquared.platform().versionMinHeight()) >> 4;
+    }
+
+    /**
+     * Get the max chunk layer associated with the queue. Usually 15 or 19
+     */
+    protected int getMaxLayer() {
+        return (getWorld() != null ? getWorld().getMaxY() : PlotSquared.platform().versionMaxHeight()) >> 4;
     }
 
 }
