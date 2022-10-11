@@ -1,27 +1,20 @@
 /*
- *       _____  _       _    _____                                _
- *      |  __ \| |     | |  / ____|                              | |
- *      | |__) | | ___ | |_| (___   __ _ _   _  __ _ _ __ ___  __| |
- *      |  ___/| |/ _ \| __|\___ \ / _` | | | |/ _` | '__/ _ \/ _` |
- *      | |    | | (_) | |_ ____) | (_| | |_| | (_| | | |  __/ (_| |
- *      |_|    |_|\___/ \__|_____/ \__, |\__,_|\__,_|_|  \___|\__,_|
- *                                    | |
- *                                    |_|
- *            PlotSquared plot management system for Minecraft
- *               Copyright (C) 2014 - 2022 IntellectualSites
+ * PlotSquared, a land and world management plugin for Minecraft.
+ * Copyright (C) IntellectualSites <https://intellectualsites.com>
+ * Copyright (C) IntellectualSites team and contributors
  *
- *     This program is free software: you can redistribute it and/or modify
- *     it under the terms of the GNU General Public License as published by
- *     the Free Software Foundation, either version 3 of the License, or
- *     (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
- *     This program is distributed in the hope that it will be useful,
- *     but WITHOUT ANY WARRANTY; without even the implied warranty of
- *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *     GNU General Public License for more details.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- *     You should have received a copy of the GNU General Public License
- *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 package com.plotsquared.core.listener;
 
@@ -74,10 +67,13 @@ import com.sk89q.worldedit.world.item.ItemType;
 import com.sk89q.worldedit.world.item.ItemTypes;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.Template;
+import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -89,6 +85,7 @@ public class PlotListener {
 
     private final HashMap<UUID, Interval> feedRunnable = new HashMap<>();
     private final HashMap<UUID, Interval> healRunnable = new HashMap<>();
+    private final Map<UUID, List<StatusEffect>> playerEffects = new HashMap<>();
 
     private final EventDispatcher eventDispatcher;
 
@@ -136,6 +133,17 @@ public class PlotListener {
                             PlotSquared.platform().worldUtil().setFoodLevel(player, Math.min(level + value.amount, value.max));
                         }
                     }
+                }
+            }
+
+            if (!playerEffects.isEmpty()) {
+                long currentTime = System.currentTimeMillis();
+                for (Iterator<Map.Entry<UUID, List<StatusEffect>>> iterator =
+                     playerEffects.entrySet().iterator(); iterator.hasNext(); ) {
+                    Map.Entry<UUID, List<StatusEffect>> entry = iterator.next();
+                    List<StatusEffect> effects = entry.getValue();
+                    effects.removeIf(effect -> currentTime > effect.expiresAt);
+                    if (effects.isEmpty()) iterator.remove();
                 }
             }
         }, TaskTime.seconds(1L));
@@ -367,6 +375,17 @@ public class PlotListener {
         try (final MetaDataAccess<Plot> lastPlot = player.accessTemporaryMetaData(PlayerMetaDataKeys.TEMPORARY_LAST_PLOT)) {
             final Plot previous = lastPlot.remove();
             this.eventDispatcher.callLeave(player, plot);
+
+            List<StatusEffect> effects = playerEffects.remove(player.getUUID());
+            if (effects != null) {
+                long currentTime = System.currentTimeMillis();
+                effects.forEach(effect -> {
+                    if (currentTime <= effect.expiresAt) {
+                        player.removeEffect(effect.name);
+                    }
+                });
+            }
+
             if (plot.hasOwner()) {
                 PlotArea pw = plot.getArea();
                 if (pw == null) {
@@ -475,6 +494,23 @@ public class PlotListener {
     public void logout(UUID uuid) {
         feedRunnable.remove(uuid);
         healRunnable.remove(uuid);
+        playerEffects.remove(uuid);
+    }
+
+    /**
+     * Marks an effect as a status effect that will be removed on leaving a plot
+     * @param uuid The uuid of the player the effect belongs to
+     * @param name The name of the status effect
+     * @param expiresAt The time when the effect expires
+     * @since 6.10.0
+     */
+    public void addEffect(@NonNull UUID uuid, @NonNull String name, long expiresAt) {
+        List<StatusEffect> effects = playerEffects.getOrDefault(uuid, new ArrayList<>());
+        effects.removeIf(effect -> effect.name.equals(name));
+        if (expiresAt != -1) {
+            effects.add(new StatusEffect(name, expiresAt));
+        }
+        playerEffects.put(uuid, effects);
     }
 
     private static class Interval {
@@ -491,5 +527,14 @@ public class PlotListener {
         }
 
     }
+
+    private record StatusEffect(@NonNull String name, long expiresAt) {
+
+        private StatusEffect(@NonNull String name, long expiresAt) {
+                this.name = name;
+                this.expiresAt = expiresAt;
+            }
+
+        }
 
 }

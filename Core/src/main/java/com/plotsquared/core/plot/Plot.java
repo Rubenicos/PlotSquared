@@ -1,27 +1,20 @@
 /*
- *       _____  _       _    _____                                _
- *      |  __ \| |     | |  / ____|                              | |
- *      | |__) | | ___ | |_| (___   __ _ _   _  __ _ _ __ ___  __| |
- *      |  ___/| |/ _ \| __|\___ \ / _` | | | |/ _` | '__/ _ \/ _` |
- *      | |    | | (_) | |_ ____) | (_| | |_| | (_| | | |  __/ (_| |
- *      |_|    |_|\___/ \__|_____/ \__, |\__,_|\__,_|_|  \___|\__,_|
- *                                    | |
- *                                    |_|
- *            PlotSquared plot management system for Minecraft
- *               Copyright (C) 2014 - 2022 IntellectualSites
+ * PlotSquared, a land and world management plugin for Minecraft.
+ * Copyright (C) IntellectualSites <https://intellectualsites.com>
+ * Copyright (C) IntellectualSites team and contributors
  *
- *     This program is free software: you can redistribute it and/or modify
- *     it under the terms of the GNU General Public License as published by
- *     the Free Software Foundation, either version 3 of the License, or
- *     (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
- *     This program is distributed in the hope that it will be useful,
- *     but WITHOUT ANY WARRANTY; without even the implied warranty of
- *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *     GNU General Public License for more details.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- *     You should have received a copy of the GNU General Public License
- *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 package com.plotsquared.core.plot;
 
@@ -464,7 +457,7 @@ public class Plot {
      * that could alter the de facto owner of the plot.
      *
      * @return The plot owner of this particular (sub-)plot
-     * as stored in the database, if one exists. Else, null.
+     *         as stored in the database, if one exists. Else, null.
      */
     public @Nullable UUID getOwnerAbs() {
         return this.owner;
@@ -1843,8 +1836,8 @@ public class Plot {
         }
         // Swap cached
         final PlotId temp = PlotId.of(this.getId().getX(), this.getId().getY());
-        this.id = plot.getId().copy();
-        plot.id = temp.copy();
+        this.id = plot.getId();
+        plot.id = temp;
         this.area.removePlot(this.getId());
         plot.area.removePlot(plot.getId());
         this.area.addPlotAbs(this);
@@ -1870,7 +1863,7 @@ public class Plot {
             return false;
         }
         this.area.removePlot(this.id);
-        this.id = plot.getId().copy();
+        this.id = plot.getId();
         this.area.addPlotAbs(this);
         DBFunc.movePlot(this, plot);
         TaskManager.runTaskLater(whenDone, TaskTime.ticks(1L));
