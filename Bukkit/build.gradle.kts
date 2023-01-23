@@ -24,7 +24,7 @@ dependencies {
     implementation("org.bstats:bstats-bukkit")
 
     // Paper
-    compileOnly(libs.paper)
+    compileOnly("io.papermc.paper:paper-api")
     implementation("io.papermc:paperlib")
 
     // Plugins
@@ -98,6 +98,7 @@ tasks.named<ShadowJar>("shadowJar") {
 
 tasks {
     withType<Javadoc> {
+        val isRelease = if (rootProject.version.toString().endsWith("-SNAPSHOT")) "TODO" else rootProject.version.toString()
         val opt = options as StandardJavadocDocletOptions
         opt.links("https://jd.papermc.io/paper/1.18/")
         opt.links("https://docs.enginehub.org/javadoc/com.sk89q.worldedit/worldedit-bukkit/" + libs.worldeditBukkit.get().versionConstraint.toString())
@@ -105,6 +106,11 @@ tasks {
         opt.links("https://jd.adventure.kyori.net/api/4.9.3/")
         opt.links("https://google.github.io/guice/api-docs/" + libs.guice.get().versionConstraint.toString() + "/javadoc/")
         opt.links("https://checkerframework.org/api/")
+        opt.isLinkSource = true
+        opt.bottom(File("$rootDir/javadocfooter.html").readText())
+        opt.isUse = true
         opt.encoding("UTF-8")
+        opt.keyWords()
+        opt.addStringOption("-since", isRelease)
     }
 }

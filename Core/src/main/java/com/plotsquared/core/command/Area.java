@@ -48,7 +48,6 @@ import com.plotsquared.core.queue.QueueCoordinator;
 import com.plotsquared.core.setup.PlotAreaBuilder;
 import com.plotsquared.core.util.FileUtils;
 import com.plotsquared.core.util.MathMan;
-import com.plotsquared.core.util.Permissions;
 import com.plotsquared.core.util.RegionUtil;
 import com.plotsquared.core.util.SchematicHandler;
 import com.plotsquared.core.util.SetupUtils;
@@ -57,6 +56,7 @@ import com.plotsquared.core.util.TabCompletions;
 import com.plotsquared.core.util.WorldUtil;
 import com.plotsquared.core.util.task.RunnableVal3;
 import com.sk89q.worldedit.EditSession;
+import com.sk89q.worldedit.EditSessionBuilder;
 import com.sk89q.worldedit.LocalSession;
 import com.sk89q.worldedit.WorldEdit;
 import com.sk89q.worldedit.entity.Player;
@@ -138,7 +138,7 @@ public class Area extends SubCommand {
                     player.sendMessage(RequiredType.CONSOLE.getErrorMessage());
                     return false;
                 }
-                if (!Permissions.hasPermission(player, Permission.PERMISSION_AREA_CREATE)) {
+                if (!player.hasPermission(Permission.PERMISSION_AREA_CREATE)) {
                     player.sendMessage(
                             TranslatableCaption.of("permission.no_permission"),
                             Template.of("node", String.valueOf(Permission.PERMISSION_AREA_CREATE))
@@ -229,10 +229,9 @@ public class Area extends SubCommand {
                 try (final ClipboardWriter clipboardWriter = BuiltInClipboardFormat.SPONGE_SCHEMATIC.getWriter(new FileOutputStream(
                         file))) {
                     final BlockArrayClipboard clipboard = new BlockArrayClipboard(selectedRegion);
-                    final EditSession editSession = WorldEdit
-                            .getInstance()
-                            .getEditSessionFactory()
-                            .getEditSession(selectedRegion.getWorld(), -1);
+                    EditSessionBuilder editSessionBuilder = WorldEdit.getInstance().newEditSessionBuilder();
+                    editSessionBuilder.world(selectedRegion.getWorld());
+                    final EditSession editSession = editSessionBuilder.build();
                     final ForwardExtentCopy forwardExtentCopy =
                             new ForwardExtentCopy(editSession, selectedRegion, clipboard, selectedRegion.getMinimumPoint());
                     forwardExtentCopy.setCopyingBiomes(true);
@@ -288,7 +287,7 @@ public class Area extends SubCommand {
                 return true;
             }
             case "c", "setup", "create" -> {
-                if (!Permissions.hasPermission(player, Permission.PERMISSION_AREA_CREATE)) {
+                if (!player.hasPermission(Permission.PERMISSION_AREA_CREATE)) {
                     player.sendMessage(
                             TranslatableCaption.of("permission.no_permission"),
                             Template.of("node", String.valueOf(Permission.PERMISSION_AREA_CREATE))
@@ -575,7 +574,7 @@ public class Area extends SubCommand {
                 return true;
             }
             case "i", "info" -> {
-                if (!Permissions.hasPermission(player, Permission.PERMISSION_AREA_INFO)) {
+                if (!player.hasPermission(Permission.PERMISSION_AREA_INFO)) {
                     player.sendMessage(
                             TranslatableCaption.of("permission.no_permission"),
                             Template.of("node", String.valueOf(Permission.PERMISSION_AREA_INFO))
@@ -653,7 +652,7 @@ public class Area extends SubCommand {
                 return true;
             }
             case "l", "list" -> {
-                if (!Permissions.hasPermission(player, Permission.PERMISSION_AREA_LIST)) {
+                if (!player.hasPermission(Permission.PERMISSION_AREA_LIST)) {
                     player.sendMessage(
                             TranslatableCaption.of("permission.no_permission"),
                             Template.of("node", String.valueOf(Permission.PERMISSION_AREA_LIST))
@@ -736,7 +735,7 @@ public class Area extends SubCommand {
                 return true;
             }
             case "regen", "clear", "reset", "regenerate" -> {
-                if (!Permissions.hasPermission(player, Permission.PERMISSION_AREA_REGEN)) {
+                if (!player.hasPermission(Permission.PERMISSION_AREA_REGEN)) {
                     player.sendMessage(
                             TranslatableCaption.of("permission.no_permission"),
                             Template.of("node", String.valueOf(Permission.PERMISSION_AREA_REGEN))
@@ -769,7 +768,7 @@ public class Area extends SubCommand {
                 return true;
             }
             case "goto", "v", "teleport", "visit", "tp" -> {
-                if (!Permissions.hasPermission(player, Permission.PERMISSION_AREA_TP)) {
+                if (!player.hasPermission(Permission.PERMISSION_AREA_TP)) {
                     player.sendMessage(
                             TranslatableCaption.of("permission.no_permission"),
                             Template.of("node", String.valueOf(Permission.PERMISSION_AREA_TP))
@@ -825,19 +824,19 @@ public class Area extends SubCommand {
     public Collection<Command> tab(final PlotPlayer<?> player, final String[] args, final boolean space) {
         if (args.length == 1) {
             final List<String> completions = new LinkedList<>();
-            if (Permissions.hasPermission(player, Permission.PERMISSION_AREA_CREATE)) {
+            if (player.hasPermission(Permission.PERMISSION_AREA_CREATE)) {
                 completions.add("create");
             }
-            if (Permissions.hasPermission(player, Permission.PERMISSION_AREA_CREATE)) {
+            if (player.hasPermission(Permission.PERMISSION_AREA_CREATE)) {
                 completions.add("single");
             }
-            if (Permissions.hasPermission(player, Permission.PERMISSION_AREA_LIST)) {
+            if (player.hasPermission(Permission.PERMISSION_AREA_LIST)) {
                 completions.add("list");
             }
-            if (Permissions.hasPermission(player, Permission.PERMISSION_AREA_INFO)) {
+            if (player.hasPermission(Permission.PERMISSION_AREA_INFO)) {
                 completions.add("info");
             }
-            if (Permissions.hasPermission(player, Permission.PERMISSION_AREA_TP)) {
+            if (player.hasPermission(Permission.PERMISSION_AREA_TP)) {
                 completions.add("tp");
             }
             final List<Command> commands = completions.stream().filter(completion -> completion
@@ -852,7 +851,7 @@ public class Area extends SubCommand {
                             CommandCategory.ADMINISTRATION
                     ) {
                     }).collect(Collectors.toCollection(LinkedList::new));
-            if (Permissions.hasPermission(player, Permission.PERMISSION_AREA) && args[0].length() > 0) {
+            if (player.hasPermission(Permission.PERMISSION_AREA) && args[0].length() > 0) {
                 commands.addAll(TabCompletions.completePlayers(player, args[0], Collections.emptyList()));
             }
             return commands;

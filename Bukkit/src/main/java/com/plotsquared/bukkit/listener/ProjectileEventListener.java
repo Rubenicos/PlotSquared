@@ -30,7 +30,7 @@ import com.plotsquared.core.plot.PlotArea;
 import com.plotsquared.core.plot.PlotHandler;
 import com.plotsquared.core.plot.flag.implementations.ProjectilesFlag;
 import com.plotsquared.core.plot.world.PlotAreaManager;
-import com.plotsquared.core.util.Permissions;
+import com.plotsquared.core.util.PlotFlagUtil;
 import net.kyori.adventure.text.minimessage.Template;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
@@ -97,14 +97,17 @@ public class ProjectileEventListener implements Listener {
             return;
         }
         Location location = BukkitUtil.adapt(entity.getLocation());
-        if (!this.plotAreaManager.hasPlotArea(location.getWorldName())) {
+        PlotArea area = location.getPlotArea();
+        if (area == null) {
             return;
         }
         PlotPlayer<Player> pp = BukkitUtil.adapt((Player) shooter);
         Plot plot = location.getOwnedPlot();
 
         if (plot == null) {
-            if (!Permissions.hasPermission(pp, Permission.PERMISSION_ADMIN_PROJECTILE_ROAD)) {
+            if (!PlotFlagUtil.isAreaRoadFlagsAndFlagEquals(area, ProjectilesFlag.class, true) && !pp.hasPermission(
+                    Permission.PERMISSION_ADMIN_PROJECTILE_ROAD
+            )) {
                 pp.sendMessage(
                         TranslatableCaption.of("permission.no_permission_event"),
                         Template.of("node", String.valueOf(Permission.PERMISSION_ADMIN_PROJECTILE_ROAD))
@@ -113,7 +116,7 @@ public class ProjectileEventListener implements Listener {
                 event.setCancelled(true);
             }
         } else if (!plot.hasOwner()) {
-            if (!Permissions.hasPermission(pp, Permission.PERMISSION_ADMIN_PROJECTILE_UNOWNED)) {
+            if (!pp.hasPermission(Permission.PERMISSION_ADMIN_PROJECTILE_UNOWNED)) {
                 pp.sendMessage(
                         TranslatableCaption.of("permission.no_permission_event"),
                         Template.of("node", String.valueOf(Permission.PERMISSION_ADMIN_PROJECTILE_UNOWNED))
@@ -123,7 +126,7 @@ public class ProjectileEventListener implements Listener {
             }
         } else if (!plot.isAdded(pp.getUUID())) {
             if (!plot.getFlag(ProjectilesFlag.class)) {
-                if (!Permissions.hasPermission(pp, Permission.PERMISSION_ADMIN_PROJECTILE_OTHER)) {
+                if (!pp.hasPermission(Permission.PERMISSION_ADMIN_PROJECTILE_OTHER)) {
                     pp.sendMessage(
                             TranslatableCaption.of("permission.no_permission_event"),
                             Template.of("node", String.valueOf(Permission.PERMISSION_ADMIN_PROJECTILE_OTHER))
@@ -154,6 +157,8 @@ public class ProjectileEventListener implements Listener {
                     if (plot.isAdded(((Player) shooter).getUniqueId()) || plot.getFlag(ProjectilesFlag.class)) {
                         return;
                     }
+                } else if (PlotFlagUtil.isAreaRoadFlagsAndFlagEquals(area, ProjectilesFlag.class, true)) {
+                    return;
                 }
 
                 entity.remove();
@@ -163,14 +168,16 @@ public class ProjectileEventListener implements Listener {
 
             PlotPlayer<?> pp = BukkitUtil.adapt((Player) shooter);
             if (plot == null) {
-                if (!Permissions.hasPermission(pp, Permission.PERMISSION_ADMIN_PROJECTILE_UNOWNED)) {
+                if (!PlotFlagUtil.isAreaRoadFlagsAndFlagEquals(area, ProjectilesFlag.class, true) && !pp.hasPermission(
+                        Permission.PERMISSION_ADMIN_PROJECTILE_UNOWNED
+                )) {
                     entity.remove();
                     event.setCancelled(true);
                 }
                 return;
             }
-            if (plot.isAdded(pp.getUUID()) || Permissions
-                    .hasPermission(pp, Permission.PERMISSION_ADMIN_PROJECTILE_OTHER) || plot.getFlag(ProjectilesFlag.class)) {
+            if (plot.isAdded(pp.getUUID()) || pp.hasPermission(Permission.PERMISSION_ADMIN_PROJECTILE_OTHER) || plot.getFlag(
+                    ProjectilesFlag.class)) {
                 return;
             }
             entity.remove();
@@ -194,7 +201,6 @@ public class ProjectileEventListener implements Listener {
             if (sPlot == null || !PlotHandler.sameOwners(plot, sPlot)) {
                 entity.remove();
                 event.setCancelled(true);
-                return;
             }
         }
     }

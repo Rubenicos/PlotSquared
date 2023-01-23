@@ -36,7 +36,6 @@ import com.plotsquared.bukkit.listener.ChunkListener;
 import com.plotsquared.bukkit.listener.EntityEventListener;
 import com.plotsquared.bukkit.listener.EntitySpawnListener;
 import com.plotsquared.bukkit.listener.PaperListener;
-import com.plotsquared.bukkit.listener.PaperListener113;
 import com.plotsquared.bukkit.listener.PlayerEventListener;
 import com.plotsquared.bukkit.listener.ProjectileEventListener;
 import com.plotsquared.bukkit.listener.ServerListener;
@@ -356,11 +355,7 @@ public final class BukkitPlatform extends JavaPlugin implements Listener, PlotPl
             getServer().getPluginManager().registerEvents(injector().getInstance(ServerListener.class), this);
             getServer().getPluginManager().registerEvents(injector().getInstance(EntitySpawnListener.class), this);
             if (PaperLib.isPaper() && Settings.Paper_Components.PAPER_LISTENERS) {
-                if (serverVersion()[1] == 13) {
-                    getServer().getPluginManager().registerEvents(injector().getInstance(PaperListener113.class), this);
-                } else {
                     getServer().getPluginManager().registerEvents(injector().getInstance(PaperListener.class), this);
-                }
             } else {
                 getServer().getPluginManager().registerEvents(injector().getInstance(SpigotListener.class), this);
             }
@@ -866,10 +861,8 @@ public final class BukkitPlatform extends JavaPlugin implements Listener, PlotPl
                                         com.plotsquared.core.location.Location pLoc = BukkitUtil.adapt(entity.getLocation());
                                         PlotArea area = pLoc.getPlotArea();
                                         if (area != null) {
-                                            PlotId currentPlotId = area.getPlotAbs(pLoc).getId();
-                                            if (!originalPlotId.equals(currentPlotId) && (currentPlotId == null || !area.getPlot(
-                                                            originalPlotId)
-                                                    .equals(area.getPlot(currentPlotId)))) {
+                                            Plot currentPlot = area.getPlotAbs(pLoc);
+                                            if (currentPlot == null || !originalPlotId.equals(currentPlot.getId())) {
                                                 if (entity.hasMetadata("ps-tmp-teleport")) {
                                                     continue;
                                                 }
@@ -883,11 +876,11 @@ public final class BukkitPlatform extends JavaPlugin implements Listener, PlotPl
                                     com.plotsquared.core.location.Location pLoc = BukkitUtil.adapt(entity.getLocation());
                                     PlotArea area = pLoc.getPlotArea();
                                     if (area != null) {
-                                        PlotId currentPlotId = area.getPlotAbs(pLoc).getId();
-                                        if (currentPlotId != null) {
+                                        Plot currentPlot = area.getPlotAbs(pLoc);
+                                        if (currentPlot != null) {
                                             entity.setMetadata(
                                                     "shulkerPlot",
-                                                    new FixedMetadataValue((Plugin) PlotSquared.platform(), currentPlotId)
+                                                    new FixedMetadataValue((Plugin) PlotSquared.platform(), currentPlot.getId())
                                             );
                                         }
                                     }

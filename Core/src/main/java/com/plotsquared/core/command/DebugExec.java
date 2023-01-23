@@ -19,6 +19,7 @@
 package com.plotsquared.core.command;
 
 import com.google.inject.Inject;
+import com.plotsquared.core.PlotSquared;
 import com.plotsquared.core.configuration.caption.StaticCaption;
 import com.plotsquared.core.configuration.caption.TranslatableCaption;
 import com.plotsquared.core.events.PlotFlagRemoveEvent;
@@ -27,7 +28,6 @@ import com.plotsquared.core.generator.HybridUtils;
 import com.plotsquared.core.player.PlotPlayer;
 import com.plotsquared.core.plot.Plot;
 import com.plotsquared.core.plot.PlotArea;
-import com.plotsquared.core.plot.expiration.ExpireManager;
 import com.plotsquared.core.plot.expiration.PlotAnalysis;
 import com.plotsquared.core.plot.flag.GlobalFlagContainer;
 import com.plotsquared.core.plot.flag.PlotFlag;
@@ -41,7 +41,6 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
@@ -139,10 +138,7 @@ public class DebugExec extends SubCommand {
                     return true;
                 }
                 case "start-expire" -> {
-                    if (ExpireManager.IMP == null) {
-                        ExpireManager.IMP = new ExpireManager(this.eventDispatcher);
-                    }
-                    if (ExpireManager.IMP.runAutomatedTask()) {
+                    if (PlotSquared.platform().expireManager().runAutomatedTask()) {
                         player.sendMessage(TranslatableCaption.of("debugexec.expiry_started"));
                     } else {
                         player.sendMessage(TranslatableCaption.of("debugexec.expiry_already_started"));
@@ -150,7 +146,7 @@ public class DebugExec extends SubCommand {
                     return true;
                 }
                 case "stop-expire" -> {
-                    if (ExpireManager.IMP == null || !ExpireManager.IMP.cancelTask()) {
+                    if (!PlotSquared.platform().expireManager().cancelTask()) {
                         player.sendMessage(TranslatableCaption.of("debugexec.task_halted"));
                     } else {
                         player.sendMessage(TranslatableCaption.of("debugexec.task_cancelled"));
