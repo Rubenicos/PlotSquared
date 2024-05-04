@@ -16,36 +16,16 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package com.plotsquared.core.events;
+package com.plotsquared.core.util.query;
 
+import com.plotsquared.core.plot.Plot;
+import org.checkerframework.checker.nullness.qual.NonNull;
 
-import org.checkerframework.checker.nullness.qual.Nullable;
+class HasOwnerFilter implements PlotFilter {
 
-/**
- * PlotSquared event with {@link Result} to cancel, force, or allow.
- */
-public interface CancellablePlotEvent {
-
-    /**
-     * The currently set {@link Result} for this event (as set by potential previous event listeners).
-     *
-     * @return the current result.
-     */
-    @Nullable Result getEventResult();
-
-    /**
-     * Set the {@link Result} for this event.
-     *
-     * @param eventResult the new result.
-     */
-    void setEventResult(@Nullable Result eventResult);
-
-    /**
-     * @deprecated No usage and not null-safe
-     */
-    @Deprecated(since = "7.3.2")
-    default int getEventResultRaw() {
-        return getEventResult() != null ? getEventResult().getValue() : -1;
+    @Override
+    public boolean accepts(final @NonNull Plot plot) {
+        return plot.hasOwner();
     }
 
 }

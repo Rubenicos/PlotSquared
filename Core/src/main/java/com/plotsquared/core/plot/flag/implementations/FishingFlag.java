@@ -16,36 +16,24 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package com.plotsquared.core.events;
+package com.plotsquared.core.plot.flag.implementations;
 
+import com.plotsquared.core.configuration.caption.TranslatableCaption;
+import com.plotsquared.core.plot.flag.types.BooleanFlag;
+import org.checkerframework.checker.nullness.qual.NonNull;
 
-import org.checkerframework.checker.nullness.qual.Nullable;
+public class FishingFlag extends BooleanFlag<FishingFlag> {
 
-/**
- * PlotSquared event with {@link Result} to cancel, force, or allow.
- */
-public interface CancellablePlotEvent {
+    public static final FishingFlag FISHING_TRUE = new FishingFlag(true);
+    public static final FishingFlag FISHING_FALSE = new FishingFlag(false);
 
-    /**
-     * The currently set {@link Result} for this event (as set by potential previous event listeners).
-     *
-     * @return the current result.
-     */
-    @Nullable Result getEventResult();
+    private FishingFlag(boolean value) {
+        super(value, TranslatableCaption.of("flags.flag_description_fishing"));
+    }
 
-    /**
-     * Set the {@link Result} for this event.
-     *
-     * @param eventResult the new result.
-     */
-    void setEventResult(@Nullable Result eventResult);
-
-    /**
-     * @deprecated No usage and not null-safe
-     */
-    @Deprecated(since = "7.3.2")
-    default int getEventResultRaw() {
-        return getEventResult() != null ? getEventResult().getValue() : -1;
+    @Override
+    protected FishingFlag flagOf(@NonNull final Boolean value) {
+        return value ? FISHING_TRUE : FISHING_FALSE;
     }
 
 }

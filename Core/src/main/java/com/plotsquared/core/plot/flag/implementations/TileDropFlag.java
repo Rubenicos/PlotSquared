@@ -16,36 +16,28 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package com.plotsquared.core.events;
+package com.plotsquared.core.plot.flag.implementations;
 
-
-import org.checkerframework.checker.nullness.qual.Nullable;
+import com.plotsquared.core.configuration.caption.TranslatableCaption;
+import com.plotsquared.core.plot.flag.types.BooleanFlag;
+import org.checkerframework.checker.nullness.qual.NonNull;
 
 /**
- * PlotSquared event with {@link Result} to cancel, force, or allow.
+ * @since 7.3.7
  */
-public interface CancellablePlotEvent {
 
-    /**
-     * The currently set {@link Result} for this event (as set by potential previous event listeners).
-     *
-     * @return the current result.
-     */
-    @Nullable Result getEventResult();
+public class TileDropFlag extends BooleanFlag<TileDropFlag> {
 
-    /**
-     * Set the {@link Result} for this event.
-     *
-     * @param eventResult the new result.
-     */
-    void setEventResult(@Nullable Result eventResult);
+    public static final TileDropFlag TILE_DROP_TRUE = new TileDropFlag(true);
+    public static final TileDropFlag TILE_DROP_FALSE = new TileDropFlag(false);
 
-    /**
-     * @deprecated No usage and not null-safe
-     */
-    @Deprecated(since = "7.3.2")
-    default int getEventResultRaw() {
-        return getEventResult() != null ? getEventResult().getValue() : -1;
+    private TileDropFlag(boolean value) {
+        super(value, TranslatableCaption.of("flags.flag_description_tile_drop"));
+    }
+
+    @Override
+    protected TileDropFlag flagOf(@NonNull Boolean value) {
+        return value ? TILE_DROP_TRUE : TILE_DROP_FALSE;
     }
 
 }

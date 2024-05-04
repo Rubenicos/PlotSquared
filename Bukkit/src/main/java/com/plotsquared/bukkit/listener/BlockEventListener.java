@@ -261,7 +261,10 @@ public class BlockEventListener implements Listener {
                 final BlockFace facing = piston.getFacing();
                 location = location.add(facing.getModX(), facing.getModY(), facing.getModZ());
                 Plot newPlot = area.getOwnedPlotAbs(location);
-                if (!plot.equals(newPlot)) {
+                if (plot.equals(newPlot)) {
+                    return;
+                }
+                if (!plot.isMerged() || !plot.getConnectedPlots().contains(newPlot)) {
                     event.setCancelled(true);
                     plot.debug("Prevented piston update because of invalid edge piston detection");
                 }
@@ -667,7 +670,11 @@ public class BlockEventListener implements Listener {
                 BlockBreakEvent call = new BlockBreakEvent(block, player);
                 Bukkit.getServer().getPluginManager().callEvent(call);
                 if (!call.isCancelled()) {
-                    event.getBlock().breakNaturally();
+                    if (Settings.Flags.INSTABREAK_CONSIDER_TOOL) {
+                        block.breakNaturally(event.getItemInHand());
+                    } else {
+                        block.breakNaturally();
+                    }
                 }
             }
             // == rather than <= as we only care about the "ground level" not being destroyed

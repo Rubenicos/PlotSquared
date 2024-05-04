@@ -106,6 +106,10 @@ public class PlotListener {
                             iterator.remove();
                             continue;
                         }
+                        // Don't attempt to heal dead players - they will get stuck in the abyss (#4406)
+                        if (PlotSquared.platform().worldUtil().getHealth(player) <= 0) {
+                            continue;
+                        }
                         double level = PlotSquared.platform().worldUtil().getHealth(player);
                         if (level != value.max) {
                             PlotSquared.platform().worldUtil().setHealth(player, Math.min(level + value.amount, value.max));
@@ -364,7 +368,6 @@ public class PlotListener {
     public boolean plotExit(final PlotPlayer<?> player, Plot plot) {
         try (final MetaDataAccess<Plot> lastPlot = player.accessTemporaryMetaData(PlayerMetaDataKeys.TEMPORARY_LAST_PLOT)) {
             final Plot previous = lastPlot.remove();
-            this.eventDispatcher.callLeave(player, plot);
 
             List<StatusEffect> effects = playerEffects.remove(player.getUUID());
             if (effects != null) {
@@ -467,6 +470,8 @@ public class PlotListener {
                 feedRunnable.remove(player.getUUID());
                 healRunnable.remove(player.getUUID());
             }
+        } finally {
+            this.eventDispatcher.callLeave(player, plot);
         }
         return true;
     }

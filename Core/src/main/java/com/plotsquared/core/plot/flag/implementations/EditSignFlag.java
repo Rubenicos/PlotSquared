@@ -16,36 +16,26 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package com.plotsquared.core.events;
+package com.plotsquared.core.plot.flag.implementations;
 
-
-import org.checkerframework.checker.nullness.qual.Nullable;
+import com.plotsquared.core.configuration.caption.TranslatableCaption;
+import com.plotsquared.core.plot.flag.types.BooleanFlag;
+import org.checkerframework.checker.nullness.qual.NonNull;
 
 /**
- * PlotSquared event with {@link Result} to cancel, force, or allow.
+ * @since 7.2.1
  */
-public interface CancellablePlotEvent {
+public class EditSignFlag extends BooleanFlag<EditSignFlag> {
+    public static final EditSignFlag EDIT_SIGN_TRUE = new EditSignFlag(true);
+    public static final EditSignFlag EDIT_SIGN_FALSE = new EditSignFlag(false);
 
-    /**
-     * The currently set {@link Result} for this event (as set by potential previous event listeners).
-     *
-     * @return the current result.
-     */
-    @Nullable Result getEventResult();
+    private EditSignFlag(final boolean value) {
+        super(value, TranslatableCaption.of("flags.flag_description_edit_sign"));
+    }
 
-    /**
-     * Set the {@link Result} for this event.
-     *
-     * @param eventResult the new result.
-     */
-    void setEventResult(@Nullable Result eventResult);
-
-    /**
-     * @deprecated No usage and not null-safe
-     */
-    @Deprecated(since = "7.3.2")
-    default int getEventResultRaw() {
-        return getEventResult() != null ? getEventResult().getValue() : -1;
+    @Override
+    protected EditSignFlag flagOf(@NonNull final Boolean value) {
+        return value ? EDIT_SIGN_TRUE : EDIT_SIGN_FALSE;
     }
 
 }
